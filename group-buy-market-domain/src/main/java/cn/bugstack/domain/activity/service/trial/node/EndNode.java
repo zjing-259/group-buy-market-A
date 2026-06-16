@@ -27,21 +27,14 @@ public class EndNode  extends AbstractGroupBuyMarketSupport<MarketProductEntity,
                     groupBuyActivityDiscountVO != null ? "存在" : "null");
         }
 
+        BigDecimal deductionPrice = dynamicContext.getDeductionPrice();
+
         //封装好并返回
         return TrialBalanceEntity.builder()
-                /*.goodsId(skuVO.getGoodsId())
-                .goodsName(skuVO.getGoodsName())
-                .originalPrice(skuVO.getOriginalPrice())
-                .deductionPrice(new BigDecimal("0.00"))
-                .targetCount(groupBuyActivityDiscountVO.getTarget())
-                .startTime(groupBuyActivityDiscountVO.getStartTime())
-                .endTime(groupBuyActivityDiscountVO.getEndTime())
-                .isVisible(false)
-                .isEnable(false)*/
                 .goodsId(skuVO != null ? skuVO.getGoodsId() : null)
                 .goodsName(skuVO != null ? skuVO.getGoodsName() : null)
                 .originalPrice(skuVO != null ? skuVO.getOriginalPrice() : null)
-                .deductionPrice(new BigDecimal("0.00"))
+                .deductionPrice(deductionPrice)
                 .targetCount(groupBuyActivityDiscountVO != null ? groupBuyActivityDiscountVO.getTarget() : null)
                 .startTime(groupBuyActivityDiscountVO != null ? groupBuyActivityDiscountVO.getStartTime() : null)
                 .endTime(groupBuyActivityDiscountVO != null ? groupBuyActivityDiscountVO.getEndTime() : null)
