@@ -26,8 +26,6 @@ public class ActivityRepository implements IActivityRepository {
     @Override
     public GroupBuyActivityDiscountVO queryGroupBuyActivityDiscountVO(String source, String channel) {
 
-
-
         //根据SC渠道值查询配置中最新的1个有效活动
         GroupBuyActivity groupBuyActivitytyReq = new GroupBuyActivity();
         groupBuyActivitytyReq.setSource(source);

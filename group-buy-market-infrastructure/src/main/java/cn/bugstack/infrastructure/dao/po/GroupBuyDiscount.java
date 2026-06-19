@@ -1,11 +1,18 @@
 package cn.bugstack.infrastructure.dao.po;
 
 import cn.bugstack.domain.activity.model.valobj.DiscountTypeEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
+@AllArgsConstructor
+@Builder
+@NoArgsConstructor
 public class GroupBuyDiscount {
     private Long id;                    // 自增ID
     private Integer discountId;         // 折扣ID
