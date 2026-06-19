@@ -15,9 +15,6 @@ public class GroupBuyActivity {
     private Long id;                    // 自增ID
     private Long activityId;            // 活动ID
     private String activityName;        // 活动名称
-    private String source;              // 来源
-    private String channel;             // 渠道
-    private String goodsId;             // 商品ID
     private String discountId;          // 折扣ID
     private Integer groupType;          // 拼团方式
     private Integer takeLimitCount;     // 拼团次数限制

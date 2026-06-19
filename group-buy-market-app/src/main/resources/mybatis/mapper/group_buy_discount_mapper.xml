@@ -9,7 +9,7 @@
         <result column="discount_id" property="discountId"/>
         <result column="discount_name" property="discountName"/>
         <result column="discount_desc" property="discountDesc"/>
-        <result column="discount_type" property="discountType" typeHandler="cn.bugstack.infrastructure.typehandler.DiscountTypeEnumTypeHandler"/>
+        <result column="discount_type" property="discountType"/>
         <result column="market_plan" property="marketPlan"/>
         <result column="market_expr" property="marketExpr"/>
         <result column="tag_id" property="tagId"/>
