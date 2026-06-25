@@ -1,11 +1,14 @@
 package cn.bugstack.domain.activity.model.valobj;
 
 
+import cn.bugstack.types.common.Constants;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
+import java.util.Objects;
 
-@Data
+@Getter
 @AllArgsConstructor
 @Builder
 public class GroupBuyActivityDiscountVO {
@@ -25,6 +28,38 @@ public class GroupBuyActivityDiscountVO {
     private Date endTime;               // 活动结束时间
     private String tagId;               // 人群标签规则标识
     private String tagScope;            // 人群标签规则范围
+
+    /**
+     * 可见限制
+     * 只要存在这样一个值，那么首次获得的默认值就是 false
+     */
+    public boolean isVisible(){
+        if (StringUtils.isBlank(this.tagScope)) {
+            return TagScopeEnumVO.VISIBLE.isAllow();
+        }
+
+        String[] split = this.tagScope.split(Constants.SPLIT);
+        if((split.length > 0 && Objects.equals(split[0],"1")) && StringUtils.isNotBlank(split[0])){
+            return TagScopeEnumVO.VISIBLE.isRefuse();
+        }
+        return TagScopeEnumVO.VISIBLE.isAllow();
+    }
+
+    /**
+     * 参与限制
+     * 只要存在这样一个值，那么首次获得的默认值就是 false
+     */
+    public boolean isEnable(){
+        if (StringUtils.isBlank(this.tagScope)) {
+            return TagScopeEnumVO.ENABLE.isAllow();
+        }
+
+        String[] split = this.tagScope.split(Constants.SPLIT);
+        if((split.length == 2 && Objects.equals(split[1],"2")) && StringUtils.isNotBlank(split[1])){
+            return TagScopeEnumVO.ENABLE.isRefuse();
+        }
+        return TagScopeEnumVO.ENABLE.isAllow();
+    }
 
     @Data
     @AllArgsConstructor

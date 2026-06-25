@@ -18,11 +18,12 @@ public class TagService implements ITagService{
 
     @Override
     public void execTagBatchJob(String tagId, String batchId) {
+        log.info("人群标签批次任务 tagId:{} batchId:{}", tagId, batchId);
         //查询任务
         CrowTagsJobEntity crowTagsJobEntity = repository.queryCrowTagsJobEntity(tagId, batchId);
         //采集用户数据
         //暂时自定义两个用户
-        List<String> userList = Arrays.asList("wh", "zj");//不用改userList
+        List<String> userList = Arrays.asList("wh", "zj", "xiaofuge", "lierqou");//不用改userList
         for (String userId : userList) {
             repository.addCrowTagsUserId(tagId, userId);
         }

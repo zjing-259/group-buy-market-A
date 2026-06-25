@@ -32,10 +32,12 @@ public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntit
     @Resource
     private ErrorNode errorNode;
     @Resource
+    private TagNode tagNode;
+    @Resource
     private Map<String, IDiscountCalculateService> discountCalculateServiceMap;
 
     @Override
-    protected void mutiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
+    protected void multiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
         QueryGroupBuyActivityDiscountVOThreadTask queryGroupBuyActivityDiscountVOThreadTask = new QueryGroupBuyActivityDiscountVOThreadTask(requestParameter.getSource(), requestParameter.getChannel(), requestParameter.getGoodsId()  , repository);
         FutureTask<GroupBuyActivityDiscountVO> groupBuyActivityDiscountVOFutureTask = new FutureTask<>(queryGroupBuyActivityDiscountVOThreadTask);
         //放入线程池
@@ -106,6 +108,6 @@ public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntit
             return errorNode;
         }
 
-        return endNode;
+        return tagNode;
     }
 }
