@@ -17,7 +17,7 @@
     <select id="querySCSkuActivityBySCGoodsId" parameterType="cn.bugstack.infrastructure.dao.po.SCSkuActivity" resultMap="dataMap">
         SELECT source ,channel,activity_id, goods_id
         FROM sc_sku_activity
-        WHERE goods_id = #{goodsId}
+        WHERE goods_id = #{goodsId} and source = #{source} and channel = #{channel}
     </select>
 
 </mapper>
