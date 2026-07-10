@@ -1,0 +1,20 @@
+package cn.bugstack.test.types.rule01.logic;
+
+import cn.bugstack.types.design.framework.link.modle1.AbstractLogicLink;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import cn.bugstack.test.types.rule02.factory.Rule02TradeRuleFactory;
+
+@Slf4j
+@Service
+public class RuleLogic102 extends AbstractLogicLink<String, Rule02TradeRuleFactory.DynamicContext, String> {
+
+
+    @Override
+    public String apply(String requestParameter, Rule02TradeRuleFactory.DynamicContext dynamicContext) throws Exception {
+
+        log.info("link modle01 RuleLogic102");
+        //最后一个节点，返回String值。
+        return "link modle01 单链实例";
+    }
+}

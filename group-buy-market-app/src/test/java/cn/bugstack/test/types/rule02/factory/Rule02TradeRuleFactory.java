@@ -1,0 +1,41 @@
+package cn.bugstack.test.types.rule02.factory;
+
+import cn.bugstack.test.types.rule02.logic.RuleLogic201;
+import cn.bugstack.test.types.rule02.logic.RuleLogic202;
+import cn.bugstack.test.types.rule02.logic.XxxResponse;
+import cn.bugstack.types.design.framework.link.modle2.LinkArmory;
+import cn.bugstack.types.design.framework.link.modle2.chain.BusinessLinkedList;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
+
+@Service
+public class Rule02TradeRuleFactory {
+    //链1：ruleLogic201——>ruleLogic202——>null
+    @Bean("demo01")
+    public BusinessLinkedList<String, DynamicContext, XxxResponse> demo01(RuleLogic201 ruleLogic201, RuleLogic202 ruleLogic202) {
+
+        LinkArmory<String, DynamicContext, XxxResponse> linkArmory = new LinkArmory<>("demo01", ruleLogic201, ruleLogic202);
+
+        return linkArmory.getLogicLink();
+    }
+    //链2：ruleLogic202——>null
+    @Bean("demo02")
+    public BusinessLinkedList<String, DynamicContext, XxxResponse> demo02(RuleLogic202 ruleLogic202) {
+
+        LinkArmory<String, DynamicContext, XxxResponse> linkArmory = new LinkArmory<>("demo02", ruleLogic202);
+
+        return linkArmory.getLogicLink();
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DynamicContext{
+        private String age;
+    }
+}
