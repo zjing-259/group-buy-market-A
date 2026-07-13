@@ -27,6 +27,7 @@ public class GroupBuyOrderList {
     private BigDecimal deductionPrice;
     private Integer status;
     private String outTradeNo;
+    private String bizId;
     private Date createTime;
     private Date updateTime;
 }

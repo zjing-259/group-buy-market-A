@@ -17,29 +17,31 @@ public class AppException extends RuntimeException {
     private String info;
 
     public AppException(String code) {
+        super(code);
         this.code = code;
     }
 
-    //新增构造函数
     public AppException(ResponseCode responseCode){
+        super(responseCode.getCode() + " " + responseCode.getInfo());
         this.code = responseCode.getCode();
         this.info = responseCode.getInfo();
     }
 
     public AppException(String code, Throwable cause) {
+        super(code, cause);
         this.code = code;
-        super.initCause(cause);
     }
 
     public AppException(String code, String message) {
+        super(code + " " + message);
         this.code = code;
         this.info = message;
     }
 
     public AppException(String code, String message, Throwable cause) {
+        super(code + " " + message, cause);
         this.code = code;
         this.info = message;
-        super.initCause(cause);
     }
 
     @Override

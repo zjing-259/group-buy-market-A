@@ -93,11 +93,12 @@ public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntit
         //获取计算服务
         IDiscountCalculateService discountCalculateService = discountCalculateServiceMap.get(groupBuyDiscount.getMarketPlan());
         if(null == discountCalculateService)   throw new AppException(ResponseCode.E0001.getCode(), ResponseCode.E0001.getInfo());
-        //优惠价格
-        BigDecimal deductionPrice = discountCalculateService.calculate(requestParameter.getUserId(), skuVO.getOriginalPrice(), groupBuyDiscount);
-        //把价格写入上下文
-        dynamicContext.setDeductionPrice(deductionPrice);
 
+        //优惠试算
+        BigDecimal payPrice = discountCalculateService.calculate(requestParameter.getUserId(), skuVO.getOriginalPrice(), groupBuyDiscount);
+        //优惠了多少钱
+        dynamicContext.setDeductionPrice(skuVO.getOriginalPrice().subtract(payPrice));
+        dynamicContext.setPayPrice(payPrice);
 
         return router(requestParameter, dynamicContext);
     }

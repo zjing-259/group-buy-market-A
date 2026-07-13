@@ -24,9 +24,8 @@ public class MarketTradeControllerTest {
 
     @Test
     public void test_lockMarketPayOrder() {
-        //发起新拼团
         LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO = new LockMarketPayOrderRequestDTO();
-        lockMarketPayOrderRequestDTO.setUserId("xiaofuge");
+        lockMarketPayOrderRequestDTO.setUserId("xfg02");
         lockMarketPayOrderRequestDTO.setTeamId(null);
         lockMarketPayOrderRequestDTO.setActivityId(100123L);
         lockMarketPayOrderRequestDTO.setGoodsId("9890001");
@@ -41,10 +40,9 @@ public class MarketTradeControllerTest {
 
     @Test
     public void test_lockMarketPayOrder_teamId_not_null() {
-        //加入一个已有的拼团，TeamId("64451200")
         LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO = new LockMarketPayOrderRequestDTO();
         lockMarketPayOrderRequestDTO.setUserId("xiaofuge");
-        lockMarketPayOrderRequestDTO.setTeamId("64451200");
+        lockMarketPayOrderRequestDTO.setTeamId("54462906");
         lockMarketPayOrderRequestDTO.setActivityId(100123L);
         lockMarketPayOrderRequestDTO.setGoodsId("9890001");
         lockMarketPayOrderRequestDTO.setSource("s01");
@@ -55,5 +53,6 @@ public class MarketTradeControllerTest {
 
         log.info("测试结果 req:{} res:{}", JSON.toJSONString(lockMarketPayOrderRequestDTO), JSON.toJSONString(lockMarketPayOrderResponseDTOResponse));
     }
+
 
 }
