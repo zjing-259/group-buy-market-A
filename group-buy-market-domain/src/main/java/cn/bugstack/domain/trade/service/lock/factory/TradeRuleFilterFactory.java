@@ -1,10 +1,10 @@
-package cn.bugstack.domain.trade.service.factory;
+package cn.bugstack.domain.trade.service.lock.factory;
 
 import cn.bugstack.domain.trade.model.entity.GroupBuyActivityEntity;
 import cn.bugstack.domain.trade.model.entity.TradeRuleCommandEntity;
 import cn.bugstack.domain.trade.model.entity.TradeRuleFilterBackEntity;
-import cn.bugstack.domain.trade.service.filter.ActivityUsabilityRuleFilter;
-import cn.bugstack.domain.trade.service.filter.UserTakeLimitRuleFilter;
+import cn.bugstack.domain.trade.service.lock.filter.ActivityUsabilityRuleFilter;
+import cn.bugstack.domain.trade.service.lock.filter.UserTakeLimitRuleFilter;
 import cn.bugstack.types.design.framework.link.modle2.LinkArmory;
 import cn.bugstack.types.design.framework.link.modle2.chain.BusinessLinkedList;
 import lombok.AllArgsConstructor;
@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 public class TradeRuleFilterFactory {
 
     @Bean("tradeRuleFilter")
-    public BusinessLinkedList<TradeRuleCommandEntity, TradeRuleFilterFactory.DynamicContext, TradeRuleFilterBackEntity> tradeRuleFilter(ActivityUsabilityRuleFilter activityUsabilityRuleFilter, UserTakeLimitRuleFilter userTakeLimitRuleFilter) {
+    public BusinessLinkedList<TradeRuleCommandEntity, DynamicContext, TradeRuleFilterBackEntity> tradeRuleFilter(ActivityUsabilityRuleFilter activityUsabilityRuleFilter, UserTakeLimitRuleFilter userTakeLimitRuleFilter) {
 
-        LinkArmory<TradeRuleCommandEntity, TradeRuleFilterFactory.DynamicContext, TradeRuleFilterBackEntity> linkArmory =
+        LinkArmory<TradeRuleCommandEntity, DynamicContext, TradeRuleFilterBackEntity> linkArmory =
                 new LinkArmory<>("交易规则过滤链", activityUsabilityRuleFilter, userTakeLimitRuleFilter);
 
         return linkArmory.getLogicLink();

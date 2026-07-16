@@ -1,10 +1,11 @@
-package cn.bugstack.domain.trade.service;
+package cn.bugstack.domain.trade.service.lock;
 
 import cn.bugstack.domain.trade.adapter.repository.ITradeRepository;
 import cn.bugstack.domain.trade.model.aggregate.GroupBuyOrderAggregate;
 import cn.bugstack.domain.trade.model.entity.*;
 import cn.bugstack.domain.trade.model.valobj.GroupBuyProgressVO;
-import cn.bugstack.domain.trade.service.factory.TradeRuleFilterFactory;
+import cn.bugstack.domain.trade.service.ITradeLockOrderService;
+import cn.bugstack.domain.trade.service.lock.factory.TradeRuleFilterFactory;
 import cn.bugstack.types.design.framework.link.modle2.chain.BusinessLinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import javax.annotation.Resource;
 
 @Service
 @Slf4j
-public class TradeOrderService implements ITradeOrderService{
+public class TradeOrderService implements ITradeLockOrderService {
     @Resource
     private ITradeRepository repository;
     @Resource
