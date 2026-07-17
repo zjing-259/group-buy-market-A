@@ -27,4 +27,10 @@ public class GroupBuyOrder {
     private Integer status;
     private Date createTime;
     private Date updateTime;
+
+    /** 拼团开始时间 - 参与拼团时间 */
+    private Date validStartTime;
+    /** 拼团结束时间 - 拼团有效时长 */
+    private Date validEndTime;
+
 }
