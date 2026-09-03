@@ -1,7 +1,7 @@
-package cn.bugstack.types.design.framework.link.modle2;
+package cn.bugstack.types.design.framework.link.model2;
 
-import cn.bugstack.types.design.framework.link.modle2.chain.BusinessLinkedList;
-import cn.bugstack.types.design.framework.link.modle2.handler.ILogicHandler;
+import cn.bugstack.types.design.framework.link.model2.chain.BusinessLinkedList;
+import cn.bugstack.types.design.framework.link.model2.handler.ILogicHandler;
 
 //链的组装器：只需提供处理器集合，即可获得一条配置好的责任链（BusinessLinkedList ）。
 public class LinkArmory<T, D, R> {

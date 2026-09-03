@@ -5,7 +5,7 @@ import cn.bugstack.domain.trade.model.entity.GroupBuyActivityEntity;
 import cn.bugstack.domain.trade.model.entity.TradeLockRuleCommandEntity;
 import cn.bugstack.domain.trade.model.entity.TradeLockRuleFilterBackEntity;
 import cn.bugstack.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
-import cn.bugstack.types.design.framework.link.modle2.handler.ILogicHandler;
+import cn.bugstack.types.design.framework.link.model2.handler.ILogicHandler;
 import cn.bugstack.types.enums.ActivityStatusEnumVO;
 import cn.bugstack.types.enums.ResponseCode;
 import cn.bugstack.types.exception.AppException;
@@ -26,7 +26,7 @@ public class ActivityUsabilityRuleFilter implements ILogicHandler<TradeLockRuleC
 
         log.info("交易规则过滤，活动的可用性校验：{}，activityId：{}", requestParameter.getUserId(), requestParameter.getActivityId());
 
-        GroupBuyActivityEntity groupBuyActivityEntity = repository.queryGroupBuyActivityByActivityId(requestParameter.getActivityId());
+        GroupBuyActivityEntity groupBuyActivityEntity = repository.queryGroupBuyActivityEntityByActivityId(requestParameter.getActivityId());
 
         if(!ActivityStatusEnumVO.EFFECTIVE.equals(groupBuyActivityEntity.getStatus())){
             throw new AppException(ResponseCode.E0101);

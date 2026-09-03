@@ -8,6 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * GroupBuyActivityDiscountVO是拼团「活动 + 折扣」配置的聚合值对象（Value Object）
+ * 这不是 PO（持久化对象），而是 domain 层的 VO，起防腐/隔离作用——领域内部用 VO 传聚合信息，不直接把数据库 PO 抛出去。
+ * 2026/9/1 16:55
+ * @author 正经
+ */
 @Getter
 @AllArgsConstructor
 @Builder

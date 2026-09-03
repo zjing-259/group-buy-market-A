@@ -2,7 +2,7 @@ package cn.bugstack.test.types.rule01.factory;
 
 import cn.bugstack.test.types.rule01.logic.RuleLogic101;
 import cn.bugstack.test.types.rule01.logic.RuleLogic102;
-import cn.bugstack.types.design.framework.link.modle1.ILogicLink;
+import cn.bugstack.types.design.framework.link.model1.ILogicLink;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import cn.bugstack.test.types.rule02.factory.Rule02TradeRuleFactory;
 import javax.annotation.Resource;
-import javax.annotation.processing.SupportedSourceVersion;
 
 @Service
 public class Rule01TradeRuleFactory {

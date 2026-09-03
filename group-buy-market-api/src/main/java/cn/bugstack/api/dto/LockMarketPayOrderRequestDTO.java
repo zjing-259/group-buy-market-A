@@ -19,4 +19,6 @@ public class LockMarketPayOrderRequestDTO {
     private String channel;
     //外部交易单号
     private String outTradeNo;
+    //回调通知地址
+    private String notifyUrl;
 }

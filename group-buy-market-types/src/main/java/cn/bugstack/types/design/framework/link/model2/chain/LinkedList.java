@@ -1,4 +1,4 @@
-package cn.bugstack.types.design.framework.link.modle2.chain;
+package cn.bugstack.types.design.framework.link.model2.chain;
 
 public class LinkedList<E> implements ILink<E> {
     //责任链名称

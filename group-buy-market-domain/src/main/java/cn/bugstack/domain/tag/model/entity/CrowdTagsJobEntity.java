@@ -11,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class CrowTagsJobEntity {
+public class CrowdTagsJobEntity {
     /*标签类型（参与量、消费金额）*/
     private Integer tagType;
     /*标签规则（限定类型 N次）*/

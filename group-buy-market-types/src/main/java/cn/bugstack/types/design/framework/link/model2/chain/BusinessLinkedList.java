@@ -1,6 +1,6 @@
-package cn.bugstack.types.design.framework.link.modle2.chain;
+package cn.bugstack.types.design.framework.link.model2.chain;
 
-import cn.bugstack.types.design.framework.link.modle2.handler.ILogicHandler;
+import cn.bugstack.types.design.framework.link.model2.handler.ILogicHandler;
 
 public class BusinessLinkedList<T, D, R> extends LinkedList<ILogicHandler<T, D, R>> implements ILogicHandler<T, D, R> {
     public BusinessLinkedList(String name) { super(name); }

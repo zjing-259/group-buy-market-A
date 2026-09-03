@@ -1,4 +1,4 @@
-package cn.bugstack.types.design.framework.link.modle1;
+package cn.bugstack.types.design.framework.link.model1;
 
 public abstract class AbstractLogicLink<T, D, R> implements ILogicLink<T, D, R>{
     //持有对下一个处理节点的引用，形成单向链表结构。默认 null，表示当前节点是链尾。

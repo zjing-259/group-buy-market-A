@@ -23,7 +23,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Objects;
-
+/**
+ * 拼团营销锁单的对外 HTTP 入口，负责接收前端「我要参与这个拼团」的请求，
+ * 依次做参数校验、幂等防重、满员拦截、营销试算，
+ * 最终锁定订单并返回订单号与应付价；
+ * 2026/9/1 17:05
+ * @author 正经
+ */
 @Slf4j
 @RestController
 @CrossOrigin("*")
@@ -34,6 +40,7 @@ public class MarketTradeController implements IMarketTradeService {
     private IIndexGroupBuyMarketService indexGroupBuyMarketService;
     @Resource
     private ITradeLockOrderService tradeOrderService;
+
     @RequestMapping(value = "lock-market-pay-order", method = RequestMethod.POST)
     @Override
     public Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(@RequestBody LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO) {
@@ -46,17 +53,18 @@ public class MarketTradeController implements IMarketTradeService {
             Long activityId = lockMarketPayOrderRequestDTO.getActivityId();
             String outTradeNo = lockMarketPayOrderRequestDTO.getOutTradeNo();
             String teamId = lockMarketPayOrderRequestDTO.getTeamId();
+            String notifyUrl = lockMarketPayOrderRequestDTO.getNotifyUrl();
 
             log.info("营销交易锁单:{} LockMarketPayOrderRequestDTO:{}", userId, JSON.toJSONString(lockMarketPayOrderRequestDTO));
 
-            if (StringUtils.isBlank(userId) || StringUtils.isBlank(source) || StringUtils.isBlank(channel) || StringUtils.isBlank(goodsId) || null == activityId) {
+            if (StringUtils.isBlank(userId) || StringUtils.isBlank(source) || StringUtils.isBlank(channel) || StringUtils.isBlank(goodsId) || null == activityId || StringUtils.isBlank(notifyUrl)) {
                 return Response.<LockMarketPayOrderResponseDTO>builder()
                         .code(ResponseCode.ILLEGAL_PARAMETER.getCode())
                         .info(ResponseCode.ILLEGAL_PARAMETER.getInfo())
                         .build();
             }
 
-            // 查询 outTradeNo 是否已经存在交易记录
+            // 查询 outTradeNo 是否已经存在交易记录，维持幂等，防止重复参团和重复插入订单明细。
             MarketPayOrderEntity marketPayOrderEntity = tradeOrderService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
             if (null != marketPayOrderEntity) {
                 LockMarketPayOrderResponseDTO lockMarketPayOrderResponseDTO = LockMarketPayOrderResponseDTO.builder()
@@ -73,7 +81,7 @@ public class MarketTradeController implements IMarketTradeService {
                         .build();
             }
 
-            // 判断拼团锁单是否完成了目标
+            // 判断拼团锁单是否完成了目标，防止加入了已经满员的团。
             if (null != teamId) {
                 GroupBuyProgressVO groupBuyProgressVO = tradeOrderService.queryGroupBuyProgress(teamId);
                 if (null != groupBuyProgressVO && Objects.equals(groupBuyProgressVO.getTargetCount(), groupBuyProgressVO.getLockCount())) {
@@ -86,6 +94,9 @@ public class MarketTradeController implements IMarketTradeService {
             }
 
             // 营销优惠试算
+            /* indexGroupBuyMarketService 其实就是整个「营销试算引擎」——把用户和商品丢进去，
+             * 经过「参数校验 → 开关/灰度 → 多线程查活动与商品 → 按策略算折扣 → 人群标签过滤 → 封装返回」这样一条责任链，
+             * 最终给出该用户能否参与、以及参与后的原价/优惠价/应付价，为后续「锁单」提供数据依据。*/
             TrialBalanceEntity trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(MarketProductEntity.builder()
                     .userId(userId)
                     .source(source)
@@ -117,6 +128,7 @@ public class MarketTradeController implements IMarketTradeService {
                             .deductionPrice(trialBalanceEntity.getDeductionPrice())
                             .payPrice(trialBalanceEntity.getPayPrice())
                             .outTradeNo(outTradeNo)
+                            .notifyUrl(notifyUrl)
                             .build());
 
             log.info("交易锁单记录(新):{} marketPayOrderEntity:{}", userId, JSON.toJSONString(marketPayOrderEntity));
@@ -144,6 +156,5 @@ public class MarketTradeController implements IMarketTradeService {
                     .info(ResponseCode.UN_ERROR.getInfo())
                     .build();
         }
-
     }
 }

@@ -1,4 +1,4 @@
-package cn.bugstack.types.design.framework.link.modle2.handler;
+package cn.bugstack.types.design.framework.link.model2.handler;
 
 public interface ILogicHandler<T, D, R> {
 

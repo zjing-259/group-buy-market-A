@@ -28,5 +28,7 @@ public class PayDiscountEntity {
     private BigDecimal payPrice;
     /** 外部交易单号-确保外部调用唯一幕等 */
     private String outTradeNo;
+    //回调通知地址
+    private String notifyUrl;
 
 }

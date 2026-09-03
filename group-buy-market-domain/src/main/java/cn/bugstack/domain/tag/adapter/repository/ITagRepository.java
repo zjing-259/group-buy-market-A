@@ -1,9 +1,9 @@
 package cn.bugstack.domain.tag.adapter.repository;
 
-import cn.bugstack.domain.tag.model.entity.CrowTagsJobEntity;
+import cn.bugstack.domain.tag.model.entity.CrowdTagsJobEntity;
 
 public interface ITagRepository {
-    CrowTagsJobEntity queryCrowTagsJobEntity(String tagId, String batchId);
+    CrowdTagsJobEntity queryCrowTagsJobEntity(String tagId, String batchId);
 
     void addCrowTagsUserId(String tagId, String userId);
 

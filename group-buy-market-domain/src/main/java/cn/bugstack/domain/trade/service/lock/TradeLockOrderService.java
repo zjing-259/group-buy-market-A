@@ -6,7 +6,7 @@ import cn.bugstack.domain.trade.model.entity.*;
 import cn.bugstack.domain.trade.model.valobj.GroupBuyProgressVO;
 import cn.bugstack.domain.trade.service.ITradeLockOrderService;
 import cn.bugstack.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
-import cn.bugstack.types.design.framework.link.modle2.chain.BusinessLinkedList;
+import cn.bugstack.types.design.framework.link.model2.chain.BusinessLinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 
 @Service
 @Slf4j
-public class TradeOrderService implements ITradeLockOrderService {
+public class TradeLockOrderService implements ITradeLockOrderService {
     @Resource
     private ITradeRepository repository;
     @Resource
@@ -23,7 +23,7 @@ public class TradeOrderService implements ITradeLockOrderService {
     @Override
     public MarketPayOrderEntity queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
         log.info("拼团交易-查询未支付订单：{}，outTradeNo：{}", userId, outTradeNo);
-        return repository.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
+        return repository.queryMarketPayOrderEntityByOutTradeNo(userId, outTradeNo);
     }
 
     @Override
@@ -52,6 +52,6 @@ public class TradeOrderService implements ITradeLockOrderService {
                 .userTakeOrderCount(userTakeOrderCount)
                 .build();
 
-        return repository.lockMarketOrderPay(groupBuyOrderAggregate);
+        return repository.lockMarketPayOrder(groupBuyOrderAggregate);
     }
 }

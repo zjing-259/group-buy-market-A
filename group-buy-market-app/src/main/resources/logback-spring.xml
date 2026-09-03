@@ -67,7 +67,7 @@
             <totalSizeCap>5GB</totalSizeCap>
         </rollingPolicy>
         <!-- WARN 级别及以上 -->
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
     </appender>

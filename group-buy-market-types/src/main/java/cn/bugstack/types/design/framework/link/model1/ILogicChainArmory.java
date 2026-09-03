@@ -1,4 +1,4 @@
-package cn.bugstack.types.design.framework.link.modle1;
+package cn.bugstack.types.design.framework.link.model1;
 
 public interface ILogicChainArmory<T, D, R> {
 

@@ -5,7 +5,7 @@ import cn.bugstack.domain.trade.model.entity.GroupBuyActivityEntity;
 import cn.bugstack.domain.trade.model.entity.TradeLockRuleCommandEntity;
 import cn.bugstack.domain.trade.model.entity.TradeLockRuleFilterBackEntity;
 import cn.bugstack.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
-import cn.bugstack.types.design.framework.link.modle2.handler.ILogicHandler;
+import cn.bugstack.types.design.framework.link.model2.handler.ILogicHandler;
 import cn.bugstack.types.enums.ResponseCode;
 import cn.bugstack.types.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class UserTakeLimitRuleFilter implements ILogicHandler<TradeLockRuleComma
 
         log.info("用户参与次数校验：{}，activityId：{}", requestParameter.getUserId(), requestParameter.getActivityId());
 
-        Integer count = repository.queryOrderCountByActivityId(requestParameter.getUserId(), requestParameter.getActivityId());
+        Integer count = repository.queryOrderCountByActivityId(requestParameter.getActivityId(), requestParameter.getUserId());
 
         GroupBuyActivityEntity groupBuyActivityEntity = dynamicContext.getGroupBuyActivityEntity();
 

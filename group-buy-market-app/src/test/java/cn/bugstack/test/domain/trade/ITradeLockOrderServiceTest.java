@@ -75,6 +75,7 @@ public class ITradeLockOrderServiceTest {
                         .originalPrice(trialBalanceEntity.getOriginalPrice())
                         .deductionPrice(trialBalanceEntity.getDeductionPrice())
                         .outTradeNo(outTradeNo)
+                        .notifyUrl("http://localhost:8080/api/v1/gbm/trade/group_buy_notify")
                         .build());
 
         log.info("测试结果(New):{}",JSON.toJSONString(marketPayOrderEntityNew));

@@ -1,7 +1,7 @@
 package cn.bugstack.infrastructure.adapter.repository;
 
 import cn.bugstack.domain.tag.adapter.repository.ITagRepository;
-import cn.bugstack.domain.tag.model.entity.CrowTagsJobEntity;
+import cn.bugstack.domain.tag.model.entity.CrowdTagsJobEntity;
 import cn.bugstack.infrastructure.dao.ICrowdTagsDao;
 import cn.bugstack.infrastructure.dao.ICrowdTagsDetailDao;
 import cn.bugstack.infrastructure.dao.ICrowdTagsJobDao;
@@ -9,7 +9,6 @@ import cn.bugstack.infrastructure.dao.po.CrowdTags;
 import cn.bugstack.infrastructure.dao.po.CrowdTagsDetail;
 import cn.bugstack.infrastructure.dao.po.CrowdTagsJob;
 import cn.bugstack.infrastructure.redis.IRedisService;
-import com.thoughtworks.xstream.converters.reflection.AbstractReflectionConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBitSet;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,7 +28,7 @@ public class TagRepository implements ITagRepository {
     private IRedisService redisService;
 
     @Override
-    public CrowTagsJobEntity queryCrowTagsJobEntity(String tagId, String batchId) {
+    public CrowdTagsJobEntity queryCrowTagsJobEntity(String tagId, String batchId) {
         CrowdTagsJob crowdTagsJobReq = new CrowdTagsJob();
         crowdTagsJobReq.setTagId(tagId);
         crowdTagsJobReq.setBatchId(batchId);
@@ -42,7 +41,7 @@ public class TagRepository implements ITagRepository {
         }
 
         //转换查询到的结果并返回
-        return CrowTagsJobEntity.builder()
+        return CrowdTagsJobEntity.builder()
                 .tagType(crowdTagsJobRes.getTagType())
                 .tagRule(crowdTagsJobRes.getTagRule())
                 .statStartTime(crowdTagsJobRes.getStatStartTime())
