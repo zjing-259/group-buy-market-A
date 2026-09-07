@@ -58,4 +58,40 @@
         select out_trade_no from group_buy_order_list where team_id = #{teamId} and status = 1
     </select>
 
+    <select id="queryInProgressUserGroupBuyOrderDetailListByUserId"
+            parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
+        select user_id, team_id, out_trade_no
+        from group_buy_order_list
+        where activity_id = #{activityId} and user_id = #{userId} and status in (0, 1) and end_time > now()
+        order by id desc
+            limit #{count}
+    </select>
+
+    <select id="queryInProgressUserGroupBuyOrderDetailListByRandom"
+            parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
+        select user_id, team_id, out_trade_no
+        from group_buy_order_list
+        where
+            activity_id = #{activityId} and
+                team_id in (select team_id from group_buy_order where activity_id = #{activityId} and status = 0) and
+            user_id != #{userId} and
+            status in (0, 1)
+          and end_time > now()
+        order by id desc
+            limit #{count}
+    </select>
+
+    <select id="queryInProgressUserGroupBuyOrderDetailListByActivityId" parameterType="java.lang.Long"
+            resultMap="dataMap">
+        select t1.user_id, t1.team_id, t1.out_trade_no
+        from group_buy_order_list t1
+        inner join (
+            select min(id) as id
+            from group_buy_order_list
+            where activity_id = #{activityId} and status in (0, 1)
+            group by team_id
+        ) t2 on t1.id = t2.id
+    </select>
+
+
 </mapper>

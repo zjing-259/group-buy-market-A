@@ -1,18 +1,22 @@
 package cn.bugstack.infrastructure.dao.po;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import cn.bugstack.infrastructure.dao.po.base.Page;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * 用户拼单明细
+ * 2026/9/5 8:46
+ * @author 正经
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class GroupBuyOrderList {
+public class GroupBuyOrderList extends Page{
     /** 自增ID */
     private Long id;
     /** 用户ID */
