@@ -34,7 +34,7 @@ thread:
 spring:
   datasource:
     username: root
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    password:${SPRING_DATASOURCE_PASSWORD}
     url: jdbc:mysql://127.0.0.1:13306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&connectTimeout=5000&socketTimeout=5000
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:

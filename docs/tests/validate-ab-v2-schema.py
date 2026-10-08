@@ -123,8 +123,9 @@ for line in (ROOT / 'docs/ab-api-contract.md').read_text(encoding='utf-8-sig').s
 
 real = 0
 if '--database' in sys.argv:
-    config = (ROOT / 'group-buy-market-app/src/main/resources/application-dev.yml').read_text(encoding='utf-8')
-    password = os.environ.get('PHASE1_DB_PASSWORD') or re.search(r'^\s+password:\s*(.+)$', config, re.M).group(1).strip().strip('\"\'')
+    password = os.environ.get('PHASE1_DB_PASSWORD') or os.environ.get('SPRING_DATASOURCE_PASSWORD')
+    if not password:
+      raise RuntimeError('Set PHASE1_DB_PASSWORD or SPRING_DATASOURCE_PASSWORD for database validation')
     env = dict(os.environ, MYSQL_PWD=password)
     query = "select body from ab_outbox"
     output = subprocess.run(['docker', 'exec', '-e', 'MYSQL_PWD', 'mysql', 'mysql', '-uroot',

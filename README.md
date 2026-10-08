@@ -61,7 +61,7 @@ A 不负责商城库存、实际收款、资金退款或履约；v2 只接收可
 
 开发配置默认连接 MySQL `127.0.0.1:13306`、数据库 `group_buy_market`，Redis `127.0.0.1:16379`。
 
-已有依赖可直接复用。新环境可以使用[环境 Compose](docs/dev-ops/docker-compose-environment.yml)的 MySQL 服务；其开发凭据应通过本地 Compose 覆盖配置调整，不沿用到生产：
+已有依赖可直接复用。新环境可以使用[环境 Compose](docs/dev-ops/docker-compose-environment.yml)的 MySQL 服务；运行前须安全注入 `MYSQL_ROOT_PASSWORD` 和 `REDIS_ADMIN_PASSWORD`，两份环境 Compose 均不提供默认密码。应用连接时的 `SPRING_DATASOURCE_PASSWORD` 应与数据库实际凭据一致；为已有数据库设置初始化变量不会修改其密码：
 
 ```powershell
 docker compose -f docs/dev-ops/docker-compose-environment.yml up -d mysql

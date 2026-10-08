@@ -41,9 +41,9 @@ try {
     Import-TaskEnvironment "$localRoot/app.env"
     Set-TaskEnvironment 'AB_V2_TEST_A_ACCESS_KEY' $env:AB_V2_ROCKETMQ_ACCESS_KEY
     Set-TaskEnvironment 'AB_V2_TEST_A_SECRET_KEY' $env:AB_V2_ROCKETMQ_SECRET_KEY
-    $config = Get-Content 'group-buy-market-app/src/main/resources/application-dev.yml' -Raw
-    $dbPassword = [regex]::Match($config, '(?m)^\s+password:\s*([^\r\n]+)').Groups[1].Value.Trim().Trim('"', "'")
+    $dbPassword = $env:SPRING_DATASOURCE_PASSWORD
     if ($env:PHASE1_DB_PASSWORD) { $dbPassword = $env:PHASE1_DB_PASSWORD }
+    if (-not $dbPassword) { throw 'Set PHASE1_DB_PASSWORD or SPRING_DATASOURCE_PASSWORD before running smoke tests.' }
     Set-TaskEnvironment 'PHASE1_DB_PASSWORD' $dbPassword
     Set-TaskEnvironment 'SPRING_DATASOURCE_PASSWORD' $dbPassword
     Set-TaskEnvironment 'SPRING_DATASOURCE_URL' 'jdbc:mysql://127.0.0.1:13306/group_buy_market_phase1_test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai'

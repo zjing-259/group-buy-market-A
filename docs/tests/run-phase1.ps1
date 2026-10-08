@@ -10,8 +10,7 @@ $previousTestPassword = $env:PHASE1_DB_PASSWORD
 Push-Location $projectRoot
 try {
     if (-not $env:PHASE1_DB_PASSWORD) {
-        $config = Get-Content 'group-buy-market-app/src/main/resources/application-dev.yml' -Raw
-        $env:PHASE1_DB_PASSWORD = [regex]::Match($config, '(?m)^\s+password:\s*([^\r\n]+)').Groups[1].Value.Trim().Trim('"', "'")
+        $env:PHASE1_DB_PASSWORD = $env:SPRING_DATASOURCE_PASSWORD
     }
     if (-not $env:PHASE1_DB_PASSWORD) { throw 'Set PHASE1_DB_PASSWORD before running the tests.' }
     $env:MYSQL_PWD = $env:PHASE1_DB_PASSWORD
