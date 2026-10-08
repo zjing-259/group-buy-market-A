@@ -11,7 +11,16 @@
 
     <packaging>jar</packaging>
 
+    <properties>
+        <!-- Legacy integration tests write external data; opt in with -DskipTests=false. -->
+        <skipTests>true</skipTests>
+    </properties>
+
     <dependencies>
+        <dependency><groupId>cn.bugstack</groupId><artifactId>group-buy-market-contract</artifactId></dependency>
+        <dependency><groupId>org.apache.dubbo</groupId><artifactId>dubbo-spring-boot-starter</artifactId></dependency>
+        <dependency><groupId>org.apache.rocketmq</groupId><artifactId>rocketmq-client</artifactId></dependency>
+        <dependency><groupId>org.apache.rocketmq</groupId><artifactId>rocketmq-acl</artifactId></dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -124,9 +133,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.22.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit4</artifactId>
+                        <version>2.22.2</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>${skipTests}</skipTests>
                     <testFailureIgnore>false</testFailureIgnore>
                     <includes>
                         <include>**/*Test.java</include>

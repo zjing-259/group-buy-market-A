@@ -6,8 +6,6 @@ import cn.bugstack.domain.activity.model.valobj.*;
 import cn.bugstack.infrastructure.dao.*;
 import cn.bugstack.infrastructure.dao.po.*;
 import cn.bugstack.infrastructure.dcc.DCCService;
-import cn.bugstack.infrastructure.redis.IRedisService;
-import org.redisson.api.RBitSet;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -30,7 +28,7 @@ public class ActivityRepository implements IActivityRepository {
     private IGroupBuyOrderListDao groupBuyOrderListDao;
 
     @Resource
-    private IRedisService redisService;
+    private ICrowdTagsDetailDao crowdTagsDetailDao;
     @Resource
     private DCCService dccService;
 
@@ -111,10 +109,8 @@ public class ActivityRepository implements IActivityRepository {
 
     @Override
     public boolean isTagCrowRange(String tagId, String userId) {
-        RBitSet bitSet = redisService.getBitSet(tagId);
-        if(!bitSet.isExists()) return true;
-
-        return bitSet.get(redisService.getIndexFromUserId(userId));
+        if (tagId == null || tagId.trim().isEmpty() || userId == null || userId.trim().isEmpty()) return false;
+        return crowdTagsDetailDao.isExactMember(tagId, userId);
     }
 
     @Override
@@ -145,7 +141,7 @@ public class ActivityRepository implements IActivityRepository {
                 .collect(Collectors.toSet());
 
         // 3. 查询队伍明细，组装Map结构
-        List<GroupBuyOrder> groupBuyOrders = groupBuyOrderDao.queryGroupBuyProgressByTeamIds(teamIds);
+        List<GroupBuyOrder> groupBuyOrders = groupBuyOrderDao.queryOwnInProgressTeamsByIds(teamIds);
         if (null == groupBuyOrders || groupBuyOrders.isEmpty()) return null;
 
         Map<String, GroupBuyOrder> groupBuyOrderMap = groupBuyOrders.stream()
@@ -217,7 +213,7 @@ public class ActivityRepository implements IActivityRepository {
             if (null == groupBuyOrder) continue;
 
             UserGroupBuyOrderDetailEntity userGroupBuyOrderDetailEntity = UserGroupBuyOrderDetailEntity.builder()
-                    .userId(groupBuyOrderList.getUserId())
+                    .userId(null)
                     .teamId(groupBuyOrder.getTeamId())
                     .activityId(groupBuyOrder.getActivityId())
                     .targetCount(groupBuyOrder.getTargetCount())

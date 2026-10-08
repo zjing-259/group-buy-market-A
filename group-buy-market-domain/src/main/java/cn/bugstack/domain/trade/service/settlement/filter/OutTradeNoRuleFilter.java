@@ -23,12 +23,29 @@ public class OutTradeNoRuleFilter implements ILogicHandler<TradeSettlementRuleCo
         log.info("结算规则过滤-外部单号校验{} outTradeNo{}", requestParameter.getUserId(), requestParameter.getOutTradeNo());
 
         //1.查询拼团信息
-        MarketPayOrderEntity marketPayOrderEntity = repository.queryMarketPayOrderEntityByOutTradeNo(requestParameter.getUserId(), requestParameter.getOutTradeNo());
+        MarketPayOrderEntity marketPayOrderEntity = repository.queryOrderByBusinessKey(requestParameter.getSource(), requestParameter.getChannel(), requestParameter.getOutTradeNo());
         if(null == marketPayOrderEntity){
             log.info("不存在的外部交易单号或用户已退单，不需要做支付订单结算:{} outTradeNo:{}", requestParameter.getUserId(), requestParameter.getOutTradeNo());
             throw new AppException(ResponseCode.E0104);
         }
 
+        if (!java.util.Objects.equals(marketPayOrderEntity.getOutTradeNo(), requestParameter.getOutTradeNo())) {
+            throw new AppException(ResponseCode.TRADE_CONFLICT);
+        }
+        if (!java.util.Objects.equals(marketPayOrderEntity.getUserId(), requestParameter.getUserId()) ||
+                !java.util.Objects.equals(marketPayOrderEntity.getSource(), requestParameter.getSource()) ||
+                !java.util.Objects.equals(marketPayOrderEntity.getChannel(), requestParameter.getChannel())) {
+            throw new AppException(ResponseCode.CHANNEL_MISMATCH);
+        }
+        if (marketPayOrderEntity.getTradeOrderStatusEnumVO() == cn.bugstack.domain.trade.model.valobj.TradeOrderStatusEnumVO.COMPLETE &&
+                (marketPayOrderEntity.getOutTradeTime() == null || requestParameter.getOutTradeTime() == null ||
+                        marketPayOrderEntity.getOutTradeTime().getTime() != requestParameter.getOutTradeTime().getTime())) {
+            throw new AppException(ResponseCode.PAYMENT_CONFLICT);
+        }
+        if (marketPayOrderEntity.getTradeOrderStatusEnumVO() != cn.bugstack.domain.trade.model.valobj.TradeOrderStatusEnumVO.CREATE &&
+                marketPayOrderEntity.getTradeOrderStatusEnumVO() != cn.bugstack.domain.trade.model.valobj.TradeOrderStatusEnumVO.COMPLETE) {
+            throw new AppException(ResponseCode.E0104);
+        }
         //写入上下文
         dynamicContext.setMarketPayOrderEntity(marketPayOrderEntity);
 

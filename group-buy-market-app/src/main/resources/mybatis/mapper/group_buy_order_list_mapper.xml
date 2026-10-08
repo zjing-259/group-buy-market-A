@@ -4,6 +4,9 @@
 
     <resultMap id="dataMap" type="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList">
         <id column="id" property="id"/>
+        <result column="pay_price" property="payPrice"/>
+        <result column="request_team_id" property="requestTeamId"/>
+        <result column="notify_url" property="notifyUrl"/>
         <result column="user_id" property="userId"/>
         <result column="team_id" property="teamId"/>
         <result column="order_id" property="orderId"/>
@@ -27,13 +30,16 @@
         insert into group_buy_order_list(
             user_id, team_id, order_id, activity_id, start_time,
             end_time, goods_id, source, channel, original_price,
-            deduction_price, status, out_trade_time, out_trade_no, biz_id, create_time, update_time
+            deduction_price, pay_price, request_team_id, notify_url, status, out_trade_time, out_trade_no, biz_id, create_time, update_time
         )
-        values(
+        select
                   #{userId}, #{teamId}, #{orderId}, #{activityId}, #{startTime},
                   #{endTime}, #{goodsId}, #{source}, #{channel}, #{originalPrice},
-                  #{deductionPrice}, #{status}, #{outTradeTime}, #{outTradeNo}, #{bizId}, now(), now()
-              )
+                  #{deductionPrice}, #{payPrice}, #{requestTeamId}, #{notifyUrl}, #{status}, #{outTradeTime}, #{outTradeNo}, #{bizId}, now(), now()
+        from group_buy_order
+        where team_id = #{teamId} and status = 0
+          and valid_start_time &lt;= now(3) and now(3) &lt; valid_end_time
+          and #{startTime} &lt;= now(3) and now(3) &lt; #{endTime}
     </insert>
 
     <select id="queryGroupBuyOrderRecordByOutTradeNo" parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
@@ -41,6 +47,17 @@
                end_time, goods_id, source, channel, original_price, deduction_price, status
         from group_buy_order_list
         where out_trade_no = #{outTradeNo} and user_id = #{userId} and status = 0
+    </select>
+
+    <select id="queryOrderByBusinessKey" resultMap="dataMap">
+        select * from group_buy_order_list
+        where source=#{source} and channel=#{channel} and out_trade_no=#{outTradeNo}
+    </select>
+
+    <select id="queryOrderByBusinessKeyForUpdate" resultMap="dataMap" useCache="false" flushCache="true">
+        select * from group_buy_order_list
+        where source=#{source} and channel=#{channel} and out_trade_no=#{outTradeNo}
+        for update
     </select>
 
     <select id="queryOrderCountByActivityId" parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList" resultType="java.lang.Integer">
@@ -51,7 +68,7 @@
     <update id="updateOrderStatus2COMPLETE" parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList">
         update group_buy_order_list
         set status = 1, out_trade_time = #{outTradeTime}, update_time = now()
-        where out_trade_no = #{outTradeNo} and user_id = #{userId}
+        where order_id = #{orderId} and source = #{source} and channel = #{channel} and user_id = #{userId} and status = 0
     </update>
 
     <select id="queryGroupBuyCompleteOrderOutTradeNoListByTeamId" parameterType="java.lang.String" resultType="java.lang.String">
@@ -60,25 +77,25 @@
 
     <select id="queryInProgressUserGroupBuyOrderDetailListByUserId"
             parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
-        select user_id, team_id, out_trade_no
-        from group_buy_order_list
-        where activity_id = #{activityId} and user_id = #{userId} and status in (0, 1) and end_time > now()
-        order by id desc
-            limit #{count}
+        select l.user_id, l.team_id, l.out_trade_no
+        from group_buy_order_list l
+        join group_buy_order t on t.team_id=l.team_id
+        where l.activity_id=#{activityId} and l.user_id=#{userId}
+          and binary l.user_id=binary #{userId} and l.status in (0,1)
+          and t.status=0 and t.valid_start_time &lt;= now(3) and now(3) &lt; t.valid_end_time
+        order by l.id desc limit #{count}
     </select>
 
     <select id="queryInProgressUserGroupBuyOrderDetailListByRandom"
             parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
-        select user_id, team_id, out_trade_no
-        from group_buy_order_list
-        where
-            activity_id = #{activityId} and
-                team_id in (select team_id from group_buy_order where activity_id = #{activityId} and status = 0) and
-            user_id != #{userId} and
-            status in (0, 1)
-          and end_time > now()
-        order by id desc
-            limit #{count}
+        select t.team_id
+        from group_buy_order t
+        where t.activity_id=#{activityId} and t.status=0 and t.lock_count &lt; t.target_count
+          and t.valid_start_time &lt;= now(3) and now(3) &lt; t.valid_end_time
+          and exists (select 1 from group_buy_order_list l where l.team_id=t.team_id and l.status in (0,1))
+          and not exists (select 1 from group_buy_order_list mine where mine.team_id=t.team_id
+                          and mine.user_id=#{userId} and binary mine.user_id=binary #{userId})
+        order by t.create_time desc, t.id desc limit #{count}
     </select>
 
     <select id="queryInProgressUserGroupBuyOrderDetailListByActivityId" parameterType="java.lang.Long"

@@ -7,7 +7,11 @@ import java.util.List;
 
 @Mapper
 public interface IGroupBuyOrderListDao {
-    void insert(GroupBuyOrderList groupBuyOrderListReq);
+    GroupBuyOrderList queryOrderByBusinessKey(GroupBuyOrderList request);
+
+    GroupBuyOrderList queryOrderByBusinessKeyForUpdate(GroupBuyOrderList request);
+
+    int insert(GroupBuyOrderList groupBuyOrderListReq);
 
     GroupBuyOrderList queryGroupBuyOrderRecordByOutTradeNo(GroupBuyOrderList groupBuyOrderListReq);
 

@@ -1,0 +1,54 @@
+services:
+  permissions:
+    image: apache/rocketmq:4.9.7
+    user: root
+    entrypoint: sh
+    command: -c "chown -R 3000:3000 /home/rocketmq/logs /home/rocketmq/store /home/rocketmq/namesrv-logs"
+    volumes:
+      - broker-store:/home/rocketmq/store
+      - broker-logs:/home/rocketmq/logs
+      - namesrv-logs:/home/rocketmq/namesrv-logs
+
+  namesrv:
+    image: apache/rocketmq:4.9.7
+    command: sh mqnamesrv
+    restart: unless-stopped
+    depends_on:
+      permissions:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:9876:9876"
+    volumes:
+      - namesrv-logs:/home/rocketmq/logs
+    networks: [ab-v2]
+
+  broker:
+    image: apache/rocketmq:4.9.7
+    command: sh mqbroker -n namesrv:9876 -c /home/rocketmq/rocketmq-4.9.7/conf/ab-broker.conf
+    restart: unless-stopped
+    depends_on:
+      namesrv:
+        condition: service_started
+      permissions:
+        condition: service_completed_successfully
+    environment:
+      NAMESRV_ADDR: namesrv:9876
+      JAVA_OPT_EXT: -Xms512m -Xmx512m -Xmn256m
+    ports:
+      - "127.0.0.1:10909:10909"
+      - "127.0.0.1:10911:10911"
+    volumes:
+      - ./broker.conf:/home/rocketmq/rocketmq-4.9.7/conf/ab-broker.conf:ro
+      - ./.local/plain_acl.yml:/home/rocketmq/rocketmq-4.9.7/conf/plain_acl.yml:ro
+      - ./.local/tools.yml:/home/rocketmq/rocketmq-4.9.7/conf/tools.yml:ro
+      - broker-store:/home/rocketmq/store
+      - broker-logs:/home/rocketmq/logs
+    networks: [ab-v2]
+
+networks:
+  ab-v2:
+
+volumes:
+  namesrv-logs:
+  broker-store:
+  broker-logs:

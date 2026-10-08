@@ -6,6 +6,7 @@
         <id column="id" property="id"/>
         <result column="activity_id" property="activityId"/>
         <result column="team_id" property="teamId"/>
+        <result column="claim_token" property="claimToken"/>
         <result column="notify_url" property="notifyUrl"/>
         <result column="notify_count" property="notifyCount"/>
         <result column="notify_status" property="notifyStatus"/>
@@ -20,36 +21,51 @@
         values(#{activityId}, #{teamId}, #{notifyUrl}, #{notifyCount}, #{notifyStatus}, #{parameterJson}, now(),now())
     </insert>
 
+    <sql id="due">
+        notify_count &lt; 5 and (
+          (notify_status in (0,2) and next_attempt_time &lt;= now(3))
+          or (notify_status=4 and lease_until &lt;= now(3)))
+    </sql>
     <select id="queryUnExecutedNotifyTaskList" resultMap="dataMap">
-        select activity_id, team_id, notify_url, notify_count, notify_status, parameter_json
-        from notify_task
-        where notify_status in (0, 2)
-            limit 50
+        select * from notify_task where <include refid="due"/>
+        order by next_attempt_time, id limit 50
     </select>
-
     <select id="queryUnExecutedNotifyTaskByTeamId" resultMap="dataMap">
-        select activity_id, team_id, notify_url, notify_count, notify_status, parameter_json
-        from notify_task
-        where team_id = #{teamId} and notify_status in (0, 2)
+        select * from notify_task where team_id=#{teamId} and (<include refid="due"/>)
     </select>
-
-    <update id="updateNotifyTaskStatusSuccess" parameterType="java.lang.String">
+    <update id="claimNotifyTask">
         update notify_task
-        set notify_count = notify_count + 1, notify_status = 1, update_time = now()
-        where team_id = #{teamId}
+        set notify_status=4, claim_token=#{claimToken}, notify_count=notify_count+1,
+            lease_until=date_add(now(3), interval 60 second),
+            next_attempt_time=date_add(now(3), interval 60 second), update_time=now(),
+            last_error='ATTEMPT_IN_PROGRESS_OR_RESULT_UNKNOWN'
+        where team_id=#{teamId} and (<include refid="due"/>)
     </update>
-
-    <update id="updateNotifyTaskStatusError" parameterType="java.lang.String">
-        update notify_task
-        set notify_count = notify_count + 1, notify_status = 3, update_time = now()
-        where team_id = #{teamId}
+    <select id="queryClaimedNotifyTask" resultMap="dataMap" useCache="false" flushCache="true">
+        select * from notify_task where team_id=#{teamId} and claim_token=#{claimToken} and notify_status=4
+    </select>
+    <select id="lockNotifyTaskByTeamId" resultType="java.lang.String" useCache="false" flushCache="true">
+        select team_id from notify_task where team_id=#{teamId} for update
+    </select>
+    <update id="expireExhaustedClaims">
+        update notify_task set notify_status=3, claim_token=null, lease_until=null,
+          last_error='ATTEMPT_LIMIT_RESULT_UNKNOWN', update_time=now()
+        where notify_count &gt;= 5 and (notify_status in (0,2) or (notify_status=4 and lease_until &lt;= now(3)))
     </update>
-
-    <update id="updateNotifyTaskStatusRetry" parameterType="java.lang.String">
-        update notify_task
-        set notify_count = notify_count + 1, notify_status = 2, update_time = now()
-        where team_id = #{teamId}
+    <sql id="owned">
+        team_id=#{teamId} and notify_status=4 and claim_token=#{claimToken} and lease_until &gt; now(3)
+    </sql>
+    <update id="updateNotifyTaskStatusSuccess">
+        update notify_task set notify_status=1, claim_token=null, lease_until=null,
+          last_error=null, update_time=now() where <include refid="owned"/>
     </update>
-
-
+    <update id="updateNotifyTaskStatusError">
+        update notify_task set notify_status=3, claim_token=null, lease_until=null,
+          last_error=#{lastError}, update_time=now() where <include refid="owned"/>
+    </update>
+    <update id="updateNotifyTaskStatusRetry">
+        update notify_task set notify_status=2, claim_token=null, lease_until=null,
+          next_attempt_time=date_add(now(3), interval #{retryDelaySeconds} second),
+          last_error=#{lastError}, update_time=now() where <include refid="owned"/>
+    </update>
 </mapper>

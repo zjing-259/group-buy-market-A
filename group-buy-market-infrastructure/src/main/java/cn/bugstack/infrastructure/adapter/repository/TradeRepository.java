@@ -15,7 +15,6 @@ import cn.bugstack.infrastructure.dao.po.GroupBuyOrder;
 import cn.bugstack.infrastructure.dao.po.GroupBuyOrderList;
 import cn.bugstack.infrastructure.dao.po.NotifyTask;
 import cn.bugstack.infrastructure.dcc.DCCService;
-import cn.bugstack.types.common.Constants;
 import cn.bugstack.types.enums.ActivityStatusEnumVO;
 import cn.bugstack.types.enums.GroupBuyOrderEnumVO;
 import cn.bugstack.types.enums.ResponseCode;
@@ -26,10 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 
 import javax.annotation.Resource;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Repository
@@ -44,6 +43,45 @@ public class TradeRepository implements ITradeRepository {
     private INotifyTaskDao notifyTaskDao;
     @Resource
     private DCCService dccService;
+    @Resource
+    private cn.bugstack.infrastructure.dao.ITradeGuardDao tradeGuardDao;
+
+    @Override
+    public void lockExternalRequest(String source, String channel, String outTradeNo) {
+        tradeGuardDao.lockRequest(source, channel, outTradeNo);
+    }
+
+    @Override
+    public void lockUserActivity(String userId, Long activityId) {
+        tradeGuardDao.lockQuota(userId, activityId);
+    }
+
+    @Override
+    public void lockActivityConfiguration(String source, String channel, String goodsId, Long activityId) {
+        Long mapped = tradeGuardDao.lockMapping(source, channel, goodsId);
+        if (!Objects.equals(mapped, activityId)) throw new AppException(ResponseCode.ACTIVITY_MISMATCH);
+        String discountId = tradeGuardDao.lockActivity(activityId);
+        if (discountId == null || tradeGuardDao.lockDiscount(discountId) == null || tradeGuardDao.lockSku(goodsId) == null) {
+            throw new AppException(ResponseCode.E0002);
+        }
+    }
+
+    @Override
+    public MarketPayOrderEntity queryOrderByBusinessKey(String source, String channel, String outTradeNo) {
+        return toOrderEntity(groupBuyOrderListDao.queryOrderByBusinessKey(GroupBuyOrderList.builder()
+                .source(source).channel(channel).outTradeNo(outTradeNo).build()));
+    }
+
+    private MarketPayOrderEntity toOrderEntity(GroupBuyOrderList row) {
+        if (row == null) return null;
+        return MarketPayOrderEntity.builder().orderId(row.getOrderId()).teamId(row.getTeamId())
+                .outTradeNo(row.getOutTradeNo())
+                .userId(row.getUserId()).activityId(row.getActivityId()).goodsId(row.getGoodsId())
+                .source(row.getSource()).channel(row.getChannel()).requestTeamId(row.getRequestTeamId())
+                .notifyUrl(row.getNotifyUrl()).originalPrice(row.getOriginalPrice()).payPrice(row.getPayPrice())
+                .deductionPrice(row.getDeductionPrice()).createTime(row.getCreateTime()).outTradeTime(row.getOutTradeTime())
+                .tradeOrderStatusEnumVO(TradeOrderStatusEnumVO.valueOf(row.getStatus())).build();
+    }
     @Override
     public GroupBuyProgressVO queryGroupBuyProgress(String teamId) {
         GroupBuyOrder groupBuyOrder = groupBuyOrderDao.queryGroupBuyProgress(teamId);
@@ -64,22 +102,32 @@ public class TradeRepository implements ITradeRepository {
         UserEntity userEntity = groupBuyOrderAggregate.getUserEntity();
         PayActivityEntity payActivityEntity = groupBuyOrderAggregate.getPayActivityEntity();
         PayDiscountEntity payDiscountEntity = groupBuyOrderAggregate.getPayDiscountEntity();
+        cn.bugstack.domain.activity.service.discount.PricePolicy.validateSnapshot(
+                payDiscountEntity.getOriginalPrice(), payDiscountEntity.getDeductionPrice(), payDiscountEntity.getPayPrice());
         //用户参与次数（后面需加1）
         Integer userTakeOrderCount = groupBuyOrderAggregate.getUserTakeOrderCount();
 
         String teamId = payActivityEntity.getTeamId();
 
+        // NOW() is fixed at statement start. Acquire the team lock before issuing time-sensitive SQL.
+        if (StringUtils.isNotBlank(teamId) && groupBuyOrderDao.lockTeamById(teamId) == null) {
+            throw new AppException(ResponseCode.TEAM_INVALID);
+        }
+        Date reservationTime = tradeGuardDao.currentTime();
+        if (payActivityEntity.getStartTime() == null || payActivityEntity.getEndTime() == null ||
+                reservationTime.before(payActivityEntity.getStartTime()) || !reservationTime.before(payActivityEntity.getEndTime())) {
+            throw new AppException(ResponseCode.E0102);
+        }
+
         //判断用户是发起拼团还是加入已有的团
         if(StringUtils.isBlank(teamId)){
             teamId = RandomStringUtils.randomNumeric(8);
-
-            Date now = new Date();
-            Date validEndTime = Date.from(Instant.now().plus(payActivityEntity.getValidTime(), ChronoUnit.MINUTES));
 
             //构建拼团订单
             GroupBuyOrder groupBuyOrder = GroupBuyOrder.builder()
                     .teamId(teamId)
                     .activityId(payActivityEntity.getActivityId())
+                    .goodsId(payDiscountEntity.getGoodsId())
                     .source(payDiscountEntity.getSource())
                     .channel(payDiscountEntity.getChannel())
                     .originalPrice(payDiscountEntity.getOriginalPrice())
@@ -88,17 +136,22 @@ public class TradeRepository implements ITradeRepository {
                     .targetCount(payActivityEntity.getTargetCount())
                     .completeCount(0)
                     .lockCount(1)
-                    .validStartTime(now)
-                    .validEndTime(validEndTime)
+                    .validTime(payActivityEntity.getValidTime())
+                    .activityStartTime(payActivityEntity.getStartTime())
+                    .activityEndTime(payActivityEntity.getEndTime())
                     .notifyUrl(payDiscountEntity.getNotifyUrl())
                     .build();
             //将订单插入数据库
-            groupBuyOrderDao.insert(groupBuyOrder);
+            if (groupBuyOrderDao.insert(groupBuyOrder) != 1) throw new AppException(ResponseCode.E0102);
         }else{
-            int updateAddLockCount = groupBuyOrderDao.updateAddLockCount(teamId);
+            int updateAddLockCount = groupBuyOrderDao.updateAddLockCount(GroupBuyOrder.builder()
+                    .teamId(teamId).activityId(payActivityEntity.getActivityId()).goodsId(payDiscountEntity.getGoodsId())
+                    .source(payDiscountEntity.getSource()).channel(payDiscountEntity.getChannel())
+                    .activityStartTime(payActivityEntity.getStartTime()).activityEndTime(payActivityEntity.getEndTime())
+                    .notifyUrl(payDiscountEntity.getNotifyUrl()).build());
             //如果返回的影响行不是1就报异常
             if(1 != updateAddLockCount){
-                throw new AppException(ResponseCode.E0005);
+                throw new AppException(ResponseCode.TEAM_INVALID);
             }
         }
 
@@ -113,21 +166,27 @@ public class TradeRepository implements ITradeRepository {
                 .goodsId(payDiscountEntity.getGoodsId())
                 .source(payDiscountEntity.getSource())
                 .channel(payDiscountEntity.getChannel())
-                .originalPrice(payDiscountEntity.getDeductionPrice())
+                .originalPrice(payDiscountEntity.getOriginalPrice())
                 .deductionPrice(payDiscountEntity.getDeductionPrice())
                 .status(TradeOrderStatusEnumVO.CREATE.getCode())
                 .outTradeNo(payDiscountEntity.getOutTradeNo())
-                .outTradeTime(new Date())
-                .bizId(payActivityEntity.getActivityId() + Constants.UNDERLINE + userEntity.getUserId() + Constants.UNDERLINE + (userTakeOrderCount + 1))
+                .payPrice(payDiscountEntity.getPayPrice())
+                .requestTeamId(StringUtils.defaultString(payActivityEntity.getTeamId()))
+                .notifyUrl(payDiscountEntity.getNotifyUrl())
+                .bizId(org.apache.commons.codec.digest.DigestUtils.sha256Hex(payActivityEntity.getActivityId() + ":" + userEntity.getUserId() + ":" + (userTakeOrderCount + 1)))
                 .build();
         //检查唯一索引冲突
         try{
-            groupBuyOrderListDao.insert(groupBuyOrderListReq);
+            if (groupBuyOrderListDao.insert(groupBuyOrderListReq) != 1) throw new AppException(ResponseCode.TEAM_INVALID);
         }catch (DuplicateKeyException e){
             throw new AppException(ResponseCode.INDEX_EXCEPTION);
         }
         //构建返回对象
         return MarketPayOrderEntity.builder()
+                .outTradeNo(payDiscountEntity.getOutTradeNo())
+                .teamId(teamId)
+                .originalPrice(payDiscountEntity.getOriginalPrice())
+                .payPrice(payDiscountEntity.getPayPrice())
                 .orderId(orderId)
                 .deductionPrice(payDiscountEntity.getDeductionPrice())
                 .tradeOrderStatusEnumVO(TradeOrderStatusEnumVO.CREATE)
@@ -139,6 +198,7 @@ public class TradeRepository implements ITradeRepository {
 
         GroupBuyActivity groupBuyActivity = groupBuyActivityDao.queryGroupBuyActivityByActivityId(activityId);
 
+        if (groupBuyActivity == null) throw new AppException(ResponseCode.E0101);
         return GroupBuyActivityEntity.builder()
                 .activityId(groupBuyActivity.getActivityId())
                 .activityName(groupBuyActivity.getActivityName())
@@ -201,7 +261,7 @@ public class TradeRepository implements ITradeRepository {
                 .build();
     }
 
-    @Transactional(timeout = 500)
+    @Transactional(timeout = 500, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate) {
 
@@ -212,6 +272,25 @@ public class TradeRepository implements ITradeRepository {
         // 1. 更新拼团订单明细状态
         //把该用户的订单明细（group_buy_order_list）状态从 0→1（已支付）
         GroupBuyOrderList groupBuyOrderListReq = new GroupBuyOrderList();
+        // A locking read sees the winner of a concurrent settlement after waiting for its commit.
+        GroupBuyOrderList lockedOrder = groupBuyOrderListDao.queryOrderByBusinessKeyForUpdate(GroupBuyOrderList.builder()
+                .source(tradePaySuccessEntity.getSource()).channel(tradePaySuccessEntity.getChannel())
+                .outTradeNo(tradePaySuccessEntity.getOutTradeNo()).build());
+        if (lockedOrder == null || !Objects.equals(lockedOrder.getUserId(), userEntity.getUserId()) ||
+                !Objects.equals(lockedOrder.getTeamId(), groupBuyTeamEntity.getTeamId())) throw new AppException(ResponseCode.CHANNEL_MISMATCH);
+        if (Objects.equals(lockedOrder.getStatus(), TradeOrderStatusEnumVO.COMPLETE.getCode())) {
+            if (lockedOrder.getOutTradeTime() == null || tradePaySuccessEntity.getOutTradeTime() == null ||
+                    lockedOrder.getOutTradeTime().getTime() != tradePaySuccessEntity.getOutTradeTime().getTime()) {
+                throw new AppException(ResponseCode.PAYMENT_CONFLICT);
+            }
+            return false;
+        }
+        if (!Objects.equals(lockedOrder.getStatus(), TradeOrderStatusEnumVO.CREATE.getCode())) throw new AppException(ResponseCode.E0104);
+        // 等待行锁后重新区分历史事实与首次支付，避免配置变化阻断成功重放。
+        if (isSCBlackIntercept(lockedOrder.getSource(), lockedOrder.getChannel())) throw new AppException(ResponseCode.E0105);
+        groupBuyOrderListReq.setOrderId(lockedOrder.getOrderId());
+        groupBuyOrderListReq.setSource(lockedOrder.getSource());
+        groupBuyOrderListReq.setChannel(lockedOrder.getChannel());
         groupBuyOrderListReq.setUserId(userEntity.getUserId());
         groupBuyOrderListReq.setOutTradeNo(tradePaySuccessEntity.getOutTradeNo());
         groupBuyOrderListReq.setOutTradeTime(tradePaySuccessEntity.getOutTradeTime());
@@ -226,13 +305,9 @@ public class TradeRepository implements ITradeRepository {
             throw new AppException(ResponseCode.UPDATE_ZERO);
         }
 
-        // 3. 更新拼团完成状态
-        // 判断是否最后一单（targetCount - 1 == completeCount）
-        if(groupBuyTeamEntity.getTargetCount() - 1 == groupBuyTeamEntity.getCompleteCount()){
-            int updateOrderStatusCount = groupBuyOrderDao.updateOrderStatus2COMPLETE(groupBuyTeamEntity.getTeamId());
-            if(1 != updateOrderStatusCount){
-                throw new AppException(ResponseCode.UPDATE_ZERO);
-            }
+        // The team's current count, not the rule-chain snapshot, decides completion.
+        int updateOrderStatusCount = groupBuyOrderDao.updateOrderStatus2COMPLETE(groupBuyTeamEntity.getTeamId());
+        if (1 == updateOrderStatusCount) {
 
             // 查询拼团交易完成外部单号列表
             List<String> outTradeNoList = groupBuyOrderListDao.queryGroupBuyCompleteOrderOutTradeNoListByTeamId(groupBuyTeamEntity.getTeamId());
@@ -265,6 +340,7 @@ public class TradeRepository implements ITradeRepository {
 
     @Override
     public List<NotifyTaskEntity> queryUnExecutedNotifyTaskList() {
+        notifyTaskDao.expireExhaustedClaims();
         List<NotifyTask> notifyTaskList = notifyTaskDao.queryUnExecutedNotifyTaskList();
         if (notifyTaskList.isEmpty()) return new ArrayList<>();
 
@@ -286,6 +362,7 @@ public class TradeRepository implements ITradeRepository {
 
     @Override
     public List<NotifyTaskEntity> queryUnExecutedNotifyTaskList(String teamId) {
+        notifyTaskDao.expireExhaustedClaims();
         NotifyTask notifyTask = notifyTaskDao.queryUnExecutedNotifyTaskByTeamId(teamId);
         if (null == notifyTask) return new ArrayList<>();
         return Collections.singletonList(NotifyTaskEntity.builder()
@@ -297,17 +374,47 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
-    public int updateNotifyTaskStatusSuccess(String teamId) {
-        return notifyTaskDao.updateNotifyTaskStatusSuccess(teamId);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public NotifyTaskEntity claimNotifyTask(String teamId) {
+        // The due check and new lease must use a statement started after any row-lock wait.
+        if (notifyTaskDao.lockNotifyTaskByTeamId(teamId) == null) return null;
+        NotifyTask claim = NotifyTask.builder().teamId(teamId).claimToken(UUID.randomUUID().toString()).build();
+        if (notifyTaskDao.claimNotifyTask(claim) != 1) return null;
+        NotifyTask row = notifyTaskDao.queryClaimedNotifyTask(claim);
+        return NotifyTaskEntity.builder().teamId(row.getTeamId()).notifyUrl(row.getNotifyUrl())
+                .notifyCount(row.getNotifyCount()).parameterJson(row.getParameterJson())
+                .claimToken(row.getClaimToken()).build();
+    }
+
+    private NotifyTask notificationResult(NotifyTaskEntity task) {
+        return NotifyTask.builder().teamId(task.getTeamId()).claimToken(task.getClaimToken())
+                .retryDelaySeconds(task.getRetryDelaySeconds()).lastError(task.getLastError()).build();
+    }
+
+    private boolean lockNotifyResultRow(NotifyTaskEntity task) {
+        // FOR UPDATE may wait for another transaction. The following UPDATE is a new
+        // SQL statement, so its NOW(3) is evaluated after the lock has been acquired.
+        return notifyTaskDao.lockNotifyTaskByTeamId(task.getTeamId()) != null;
     }
 
     @Override
-    public int updateNotifyTaskStatusError(String teamId) {
-        return notifyTaskDao.updateNotifyTaskStatusError(teamId);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int updateNotifyTaskStatusSuccess(NotifyTaskEntity task) {
+        if (!lockNotifyResultRow(task)) return 0;
+        return notifyTaskDao.updateNotifyTaskStatusSuccess(notificationResult(task));
     }
 
     @Override
-    public int updateNotifyTaskStatusRetry(String teamId) {
-        return notifyTaskDao.updateNotifyTaskStatusRetry(teamId);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int updateNotifyTaskStatusError(NotifyTaskEntity task) {
+        if (!lockNotifyResultRow(task)) return 0;
+        return notifyTaskDao.updateNotifyTaskStatusError(notificationResult(task));
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int updateNotifyTaskStatusRetry(NotifyTaskEntity task) {
+        if (!lockNotifyResultRow(task)) return 0;
+        return notifyTaskDao.updateNotifyTaskStatusRetry(notificationResult(task));
     }
 }

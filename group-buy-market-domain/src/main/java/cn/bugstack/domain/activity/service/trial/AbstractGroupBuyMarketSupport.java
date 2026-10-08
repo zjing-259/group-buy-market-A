@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 @Service
 public abstract class AbstractGroupBuyMarketSupport<MarketProductEntity, DynamicContext, TrialBalanceEntity> extends AbstractMultiThreadStrategyRouter<cn.bugstack.domain.activity.model.entity.MarketProductEntity, DefaultActivityStrategyFactory.DynamicContext, cn.bugstack.domain.activity.model.entity.TrialBalanceEntity> {
 
-    protected long timeout = 5000;
+    protected final long trialTimeoutNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
     @Resource
     protected IActivityRepository repository;
     @Override

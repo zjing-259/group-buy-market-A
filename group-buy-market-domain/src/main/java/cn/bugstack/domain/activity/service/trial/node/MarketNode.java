@@ -38,22 +38,29 @@ public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntit
 
     @Override
     protected void multiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
+        // Locking calls must keep the configuration reads on the transaction's connection.
+        // Otherwise concurrent requests can exhaust the pool while waiting for their own trial tasks.
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive()) {
+            cn.bugstack.domain.activity.model.valobj.SCSkuActivityVO mapping = repository.querySCSkuActivityBySCGoodsId(
+                    requestParameter.getSource(), requestParameter.getChannel(), requestParameter.getGoodsId());
+            dynamicContext.setGroupBuyActivityDiscountVO(mapping == null ? null : repository.queryGroupBuyActivityDiscountVO(mapping.getActivityId()));
+            dynamicContext.setSkuVO(repository.querySkuByGoodsId(requestParameter.getGoodsId()));
+            return;
+        }
+        long deadline = System.nanoTime() + trialTimeoutNanos;
         QueryGroupBuyActivityDiscountVOThreadTask queryGroupBuyActivityDiscountVOThreadTask = new QueryGroupBuyActivityDiscountVOThreadTask(requestParameter.getSource(), requestParameter.getChannel(), requestParameter.getGoodsId()  , repository);
         FutureTask<GroupBuyActivityDiscountVO> groupBuyActivityDiscountVOFutureTask = new FutureTask<>(queryGroupBuyActivityDiscountVOThreadTask);
-        //放入线程池
-        threadPoolExecutor.execute(groupBuyActivityDiscountVOFutureTask);
-
         QuerySkuVOFromDBThreadTask querySkuVOFromDBThreadTask = new QuerySkuVOFromDBThreadTask(requestParameter.getGoodsId(), repository);
         FutureTask<SkuVO> skuVOFutureTask = new FutureTask<>(querySkuVOFromDBThreadTask);
-        //放入线程池
-        threadPoolExecutor.execute(skuVOFutureTask);
-        //配置上下文
-        //dynamicContext.setGroupBuyActivityDiscountVO(groupBuyActivityDiscountVOFutureTask.get(timeout, TimeUnit.MILLISECONDS));
-        //dynamicContext.setSkuVO(skuVOFutureTask.get(timeout, TimeUnit.MILLISECONDS));
         try {
-            //配置上下文 - 增加超时时间到5秒
-            GroupBuyActivityDiscountVO activityDiscountVO = groupBuyActivityDiscountVOFutureTask.get(timeout, TimeUnit.SECONDS);
-            SkuVO skuVO = skuVOFutureTask.get(timeout, TimeUnit.SECONDS);
+            threadPoolExecutor.execute(groupBuyActivityDiscountVOFutureTask);
+            threadPoolExecutor.execute(skuVOFutureTask);
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) throw new TimeoutException("Trial lookup deadline exceeded");
+            GroupBuyActivityDiscountVO activityDiscountVO = groupBuyActivityDiscountVOFutureTask.get(remaining, TimeUnit.NANOSECONDS);
+            remaining = deadline - System.nanoTime();
+            if (remaining <= 0) throw new TimeoutException("Trial lookup deadline exceeded");
+            SkuVO skuVO = skuVOFutureTask.get(remaining, TimeUnit.NANOSECONDS);
 
             if (activityDiscountVO != null) {
                 dynamicContext.setGroupBuyActivityDiscountVO(activityDiscountVO);
@@ -68,11 +75,11 @@ public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntit
             } else {
                 log.warn("未查询到商品信息, goodsId: {}", requestParameter.getGoodsId());
             }
-        } catch (TimeoutException e) {
-            log.error("异步任务执行超时", e);
-            throw e;
-        } catch (ExecutionException e) {
-            log.error("异步任务执行异常", e);
+        } catch (TimeoutException | ExecutionException | InterruptedException | RejectedExecutionException e) {
+            groupBuyActivityDiscountVOFutureTask.cancel(true);
+            skuVOFutureTask.cancel(true);
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            log.warn("试算配置查询未在预算内完成", e);
             throw e;
         }
     }
@@ -84,6 +91,9 @@ public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntit
         //获取信息
         GroupBuyActivityDiscountVO groupBuyActivityDiscountVO = dynamicContext.getGroupBuyActivityDiscountVO();
         if(null == groupBuyActivityDiscountVO) return router(requestParameter, dynamicContext);
+        if (requestParameter.getActivityId() != null && !requestParameter.getActivityId().equals(groupBuyActivityDiscountVO.getActivityId())) {
+            throw new AppException(ResponseCode.ACTIVITY_MISMATCH);
+        }
 
         GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount = groupBuyActivityDiscountVO.getGroupBuyDiscount();
         SkuVO skuVO = dynamicContext.getSkuVO();

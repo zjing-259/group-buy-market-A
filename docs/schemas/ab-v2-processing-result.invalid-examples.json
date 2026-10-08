@@ -1,0 +1,1342 @@
+[
+  {
+    "name": "PAYMENT_SUCCEEDED_APPLIED_unexpected_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_APPLIED_wrong_code",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_APPLIED_null_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_APPLIED_wrong_result_type",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": true
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_APPLIED_extra_result_field",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2",
+          "extra": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_APPLIED_missing_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_IGNORED_unexpected_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_IGNORED_wrong_code",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "IGNORED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_IGNORED_null_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_IGNORED_wrong_result_type",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": true
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_IGNORED_extra_result_field",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2",
+          "extra": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_IGNORED_missing_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_REJECTED_unexpected_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "REJECTED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_REJECTED_wrong_code",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "REJECTED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "PAYMENT_SUCCEEDED_REJECTED_missing_result",
+    "event": {
+      "eventId": "result-PAYMENT_SUCCEEDED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "REJECTED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_APPLIED_unexpected_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_APPLIED_wrong_code",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "goodsId": "goods-1",
+          "currentVersion": "1",
+          "applied": true,
+          "saleStatus": "ON_SALE"
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_APPLIED_null_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_APPLIED_wrong_result_type",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": true
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_APPLIED_extra_result_field",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "goodsId": "goods-1",
+          "currentVersion": "1",
+          "applied": true,
+          "saleStatus": "ON_SALE",
+          "extra": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_APPLIED_missing_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_IGNORED_unexpected_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_IGNORED_wrong_code",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "goodsId": "goods-1",
+          "currentVersion": "1",
+          "applied": false,
+          "saleStatus": "ON_SALE"
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_IGNORED_null_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_IGNORED_wrong_result_type",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": true
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_IGNORED_extra_result_field",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "goodsId": "goods-1",
+          "currentVersion": "1",
+          "applied": false,
+          "saleStatus": "ON_SALE",
+          "extra": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_IGNORED_missing_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_REJECTED_unexpected_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "REJECTED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_REJECTED_wrong_code",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "REJECTED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "PRODUCT_SNAPSHOT_CHANGED_REJECTED_missing_result",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "REJECTED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_APPLIED_unexpected_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_APPLIED_wrong_code",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "APPLIED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "outTradeNo": "order-1",
+          "refundId": "refund-1",
+          "refundStatus": "SUCCEEDED",
+          "refundVersion": "2",
+          "recordVersion": "3"
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_APPLIED_null_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_APPLIED_wrong_result_type",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": true
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_APPLIED_extra_result_field",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "outTradeNo": "order-1",
+          "refundId": "refund-1",
+          "refundStatus": "SUCCEEDED",
+          "refundVersion": "2",
+          "recordVersion": "3",
+          "extra": true
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_APPLIED_missing_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_IGNORED_unexpected_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_IGNORED_wrong_code",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "IGNORED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "outTradeNo": "order-1",
+          "refundId": "refund-1",
+          "refundStatus": "SUCCEEDED",
+          "refundVersion": "2",
+          "recordVersion": "3"
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_IGNORED_null_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_IGNORED_wrong_result_type",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": true
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_IGNORED_extra_result_field",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "outTradeNo": "order-1",
+          "refundId": "refund-1",
+          "refundStatus": "SUCCEEDED",
+          "refundVersion": "2",
+          "recordVersion": "3",
+          "extra": true
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_IGNORED_missing_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_REJECTED_unexpected_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "REJECTED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "unexpectedField": true
+        }
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_REJECTED_wrong_code",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "REJECTED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": null
+      }
+    }
+  },
+  {
+    "name": "REFUND_STATUS_CHANGED_REJECTED_missing_result",
+    "event": {
+      "eventId": "result-REFUND_STATUS_CHANGED-REJECTED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "REFUND_STATUS_CHANGED",
+        "outcome": "REJECTED",
+        "code": "INVALID_PARAMETER",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z"
+      }
+    }
+  },
+  {
+    "name": "extra_payment_field",
+    "event": {
+      "eventId": "example-7",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z",
+            "unexpectedField": true
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  },
+  {
+    "name": "zero_payment",
+    "event": {
+      "eventId": "example-7",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "0.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  },
+  {
+    "name": "currency",
+    "event": {
+      "eventId": "example-7",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "USD",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  },
+  {
+    "name": "bad_time",
+    "event": {
+      "eventId": "example-7",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PAYMENT_SUCCEEDED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "yesterday"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  },
+  {
+    "name": "product_APPLIED_wrong_applied",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-APPLIED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "goodsId": "goods-1",
+          "currentVersion": "1",
+          "applied": false,
+          "saleStatus": "ON_SALE"
+        }
+      }
+    }
+  },
+  {
+    "name": "product_IGNORED_wrong_applied",
+    "event": {
+      "eventId": "result-PRODUCT_SNAPSHOT_CHANGED-IGNORED",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "PRODUCT_SNAPSHOT_CHANGED",
+        "outcome": "IGNORED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "goodsId": "goods-1",
+          "currentVersion": "1",
+          "applied": true,
+          "saleStatus": "ON_SALE"
+        }
+      }
+    }
+  },
+  {
+    "name": "unsupported_original_type",
+    "event": {
+      "eventId": "example-7",
+      "schemaVersion": 1,
+      "producer": "group-buy-market",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "source": "s01",
+      "channel": "c01",
+      "correlationId": null,
+      "eventType": "EVENT_PROCESSING_RESULT",
+      "payload": {
+        "originalEventId": "example-001",
+        "originalEventType": "TEAM_COMPLETED",
+        "outcome": "APPLIED",
+        "code": "0000",
+        "info": "SUCCESS",
+        "processedAt": "2026-10-03T00:00:00.000Z",
+        "result": {
+          "orderId": "A001",
+          "outTradeNo": "order-1",
+          "teamId": "team-1",
+          "payment": {
+            "paymentId": "payment-1",
+            "paidAmount": "80.00",
+            "currency": "CNY",
+            "paidAt": "2026-10-02T23:59:59.000Z"
+          },
+          "orderStatus": "PAID",
+          "teamStatus": "FORMING",
+          "recordVersion": "2",
+          "teamVersion": "2"
+        }
+      }
+    }
+  }
+]

@@ -18,25 +18,12 @@ public class ThreadPoolConfig {
     @Bean
     @ConditionalOnMissingBean(ThreadPoolExecutor.class)
     public ThreadPoolExecutor threadPoolExecutor(ThreadPoolConfigProperties properties) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        // 实例化策略
-        RejectedExecutionHandler handler;
-        switch (properties.getPolicy()){
-            case "AbortPolicy":
-                handler = new ThreadPoolExecutor.AbortPolicy();
-                break;
-            case "DiscardPolicy":
-                handler = new ThreadPoolExecutor.DiscardPolicy();
-                break;
-            case "DiscardOldestPolicy":
-                handler = new ThreadPoolExecutor.DiscardOldestPolicy();
-                break;
-            case "CallerRunsPolicy":
-                handler = new ThreadPoolExecutor.CallerRunsPolicy();
-                break;
-            default:
-                handler = new ThreadPoolExecutor.AbortPolicy();
-                break;
+        // Trial lookup depends on bounded asynchronous execution. Silent discard or
+        // caller-side execution can bypass its deadline and leave a Future unresolved.
+        if (!"AbortPolicy".equals(properties.getPolicy())) {
+            throw new IllegalArgumentException("thread.pool.executor.config.policy must be AbortPolicy");
         }
+        RejectedExecutionHandler handler = new ThreadPoolExecutor.AbortPolicy();
         // 创建线程池
         return new ThreadPoolExecutor(properties.getCorePoolSize(),
                 properties.getMaxPoolSize(),

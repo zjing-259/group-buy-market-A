@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static cn.bugstack.domain.trade.service.TradeRequestValidation.required;
 
 //支付成功后的结算流程
 @Slf4j
@@ -36,6 +37,11 @@ public class TradeSettlementOrderService implements ITradeSettlementOrderService
      */
     @Override
     public TradePaySettlementEntity settlementMarketPayOrder(TradePaySuccessEntity tradePaySuccessEntity) throws Exception {
+        if (tradePaySuccessEntity == null) throw new cn.bugstack.types.exception.AppException(cn.bugstack.types.enums.ResponseCode.ILLEGAL_PARAMETER);
+        required(tradePaySuccessEntity.getUserId(), 64);
+        required(tradePaySuccessEntity.getSource(), 8);
+        required(tradePaySuccessEntity.getChannel(), 8);
+        required(tradePaySuccessEntity.getOutTradeNo(), 12);
 
         log.info("拼团交易-支付订单结算:{} outTradeNo:{}", tradePaySuccessEntity.getUserId(), tradePaySuccessEntity.getOutTradeNo());
 
@@ -75,10 +81,15 @@ public class TradeSettlementOrderService implements ITradeSettlementOrderService
 
         // 4. 拼团交易结算（将聚合对象传入）,并把相关数据落库。
         boolean isCompleted = repository.settlementMarketPayOrder(groupBuyTeamSettlementAggregate);
-        //如果成功落库，则立即执行回调
+        // The repository has committed the order, team and notification task here.
+        // Immediate delivery is best-effort; the durable task remains available to the scheduler.
         if(isCompleted){
-            Map<String, Integer> notifyResultMap = execSettlementNotifyJob(teamId);
-            log.info("回调通知拼团完结 result:{}", JSON.toJSONString(notifyResultMap));
+            try {
+                Map<String, Integer> notifyResultMap = execSettlementNotifyJob(teamId);
+                log.info("回调通知拼团完结 result:{}", JSON.toJSONString(notifyResultMap));
+            } catch (Exception e) {
+                log.error("拼团结算已提交，即时通知失败，保留任务等待补偿 teamId:{}", teamId, e);
+            }
         }
 
         // 5. 返回结算信息 - 公司中开发这样的流程时候，会根据外部需要进行值的设置
@@ -120,34 +131,43 @@ public class TradeSettlementOrderService implements ITradeSettlementOrderService
     }
 
     private Map<String, Integer> execSettlementNotifyJob(List<NotifyTaskEntity> notifyTaskEntityList) throws Exception {
-        int successCount = 0, errorCount = 0, retryCount = 0;
-        for (NotifyTaskEntity notifyTask : notifyTaskEntityList) {
-            // 回调处理 success 成功，error 失败
-            String response = port.groupBuyNotify(notifyTask);
-
-            // 更新状态判断&变更数据库表回调任务状态
-            if (NotifyTaskHTTPEnumVO.SUCCESS.getCode().equals(response)) {
-                int updateCount = repository.updateNotifyTaskStatusSuccess(notifyTask.getTeamId());
-                if (1 == updateCount) {
-                    successCount += 1;
+        int successCount = 0, errorCount = 0, retryCount = 0, skippedCount = 0;
+        for (NotifyTaskEntity candidate : notifyTaskEntityList) {
+            if (Thread.currentThread().isInterrupted()) break;
+            boolean interrupted = false;
+            try {
+                NotifyTaskEntity task = repository.claimNotifyTask(candidate.getTeamId());
+                if (task == null) { skippedCount++; continue; }
+                boolean success = false;
+                try {
+                    String response = port.groupBuyNotify(task);
+                    success = NotifyTaskHTTPEnumVO.SUCCESS.getCode().equals(response);
+                    if (!success) task.setLastError(response == null ? "EMPTY_RESULT" :
+                            "DELIVERY_NOT_ACKNOWLEDGED:" + response.substring(0, Math.min(response.length(), 180)));
+                } catch (Exception e) {
+                    interrupted = e instanceof InterruptedException;
+                    task.setLastError("DELIVERY_EXCEPTION:" + e.getClass().getSimpleName());
+                    log.warn("通知投递失败 teamId:{}", task.getTeamId(), e);
                 }
-            } else if (NotifyTaskHTTPEnumVO.ERROR.getCode().equals(response)) {
-                if (notifyTask.getNotifyCount() < 5) {
-                    int updateCount = repository.updateNotifyTaskStatusError(notifyTask.getTeamId());
-                    if (1 == updateCount) {
-                        errorCount += 1;
-                    }
+                if (success) {
+                    successCount += repository.updateNotifyTaskStatusSuccess(task);
+                } else if (task.getNotifyCount() >= 5) {
+                    errorCount += repository.updateNotifyTaskStatusError(task);
                 } else {
-                    int updateCount = repository.updateNotifyTaskStatusRetry(notifyTask.getTeamId());
-                    if (1 == updateCount) {
-                        retryCount += 1;
-                    }
+                    task.setRetryDelaySeconds(60 * (1 << (task.getNotifyCount() - 1)));
+                    retryCount += repository.updateNotifyTaskStatusRetry(task);
                 }
+            } catch (Exception e) {
+                // A committed claim whose result cannot be persisted will recover after its lease expires.
+                log.error("通知处理异常，租约到期后恢复 teamId:{}", candidate.getTeamId(), e);
+            } finally {
+                if (interrupted) Thread.currentThread().interrupt();
             }
         }
 
         Map<String, Integer> resultMap = new HashMap<>();
         resultMap.put("waitCount", notifyTaskEntityList.size());
+        resultMap.put("skippedCount", skippedCount);
         resultMap.put("successCount", successCount);
         resultMap.put("errorCount", errorCount);
         resultMap.put("retryCount", retryCount);

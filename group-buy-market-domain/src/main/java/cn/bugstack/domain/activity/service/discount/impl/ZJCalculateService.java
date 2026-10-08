@@ -6,14 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import cn.bugstack.domain.activity.service.discount.PricePolicy;
 @Slf4j
 @Service("ZJ")
 public class ZJCalculateService extends AbstractDiscountCalculateService {
     @Override
     protected BigDecimal doCalculate(BigDecimal originalPrice, GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount) {
         String marketExpr = groupBuyDiscount.getMarketExpr();
-        BigDecimal deductionPrice = originalPrice.subtract(new BigDecimal(marketExpr));
+        BigDecimal deductionPrice = originalPrice.subtract(PricePolicy.nonNegative(marketExpr));
 
-        return ensureMinimumPrice(deductionPrice);
+        return deductionPrice;
     }
 }

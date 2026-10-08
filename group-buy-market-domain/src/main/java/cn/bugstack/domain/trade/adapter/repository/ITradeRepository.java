@@ -14,6 +14,11 @@ public interface ITradeRepository {
 
     MarketPayOrderEntity queryMarketPayOrderEntityByOutTradeNo(String userId, String outTradeNo);
 
+    void lockExternalRequest(String source, String channel, String outTradeNo);
+    void lockUserActivity(String userId, Long activityId);
+    void lockActivityConfiguration(String source, String channel, String goodsId, Long activityId);
+    MarketPayOrderEntity queryOrderByBusinessKey(String source, String channel, String outTradeNo);
+
     GroupBuyProgressVO queryGroupBuyProgress(String teamId);
 
     MarketPayOrderEntity lockMarketPayOrder(GroupBuyOrderAggregate groupBuyOrderAggregate);
@@ -32,9 +37,11 @@ public interface ITradeRepository {
 
     List<NotifyTaskEntity> queryUnExecutedNotifyTaskList(String teamId);
 
-    int updateNotifyTaskStatusSuccess(String teamId);
+    NotifyTaskEntity claimNotifyTask(String teamId);
 
-    int updateNotifyTaskStatusError(String teamId);
+    int updateNotifyTaskStatusSuccess(NotifyTaskEntity task);
 
-    int updateNotifyTaskStatusRetry(String teamId);
+    int updateNotifyTaskStatusError(NotifyTaskEntity task);
+
+    int updateNotifyTaskStatusRetry(NotifyTaskEntity task);
 }

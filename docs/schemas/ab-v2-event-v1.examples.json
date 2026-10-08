@@ -1,0 +1,157 @@
+[
+  {
+    "eventId": "example-1",
+    "schemaVersion": 1,
+    "producer": "zj-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "PRODUCT_SNAPSHOT_CHANGED",
+    "payload": {
+      "goodsId": "goods-1",
+      "productVersion": "1",
+      "goodsName": "示例商品",
+      "originalPrice": "100.00",
+      "currency": "CNY",
+      "saleStatus": "ON_SALE"
+    }
+  },
+  {
+    "eventId": "example-2",
+    "schemaVersion": 1,
+    "producer": "zj-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "PAYMENT_SUCCEEDED",
+    "payload": {
+      "userId": "user-1",
+      "outTradeNo": "order-1",
+      "paymentId": "payment-1",
+      "paidAmount": "80.00",
+      "currency": "CNY",
+      "paidAt": "2026-10-02T23:59:59.000Z"
+    }
+  },
+  {
+    "eventId": "example-3",
+    "schemaVersion": 1,
+    "producer": "zj-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "REFUND_STATUS_CHANGED",
+    "payload": {
+      "userId": "user-1",
+      "outTradeNo": "order-1",
+      "paymentId": "payment-1",
+      "refundId": "refund-1",
+      "refundAmount": "80.00",
+      "currency": "CNY",
+      "refundStatus": "SUCCEEDED",
+      "refundVersion": "2",
+      "occurredAt": "2026-10-03T00:00:00.000Z",
+      "failureCode": null,
+      "paidAt": null,
+      "paidAmount": null
+    }
+  },
+  {
+    "eventId": "example-4",
+    "schemaVersion": 1,
+    "producer": "group-buy-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "TEAM_COMPLETED",
+    "payload": {
+      "teamId": "team-1",
+      "activityId": "1001",
+      "teamVersion": "3",
+      "outTradeNoList": [
+        "order-1"
+      ]
+    }
+  },
+  {
+    "eventId": "example-5",
+    "schemaVersion": 1,
+    "producer": "group-buy-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "TEAM_RECONCILIATION_REQUIRED",
+    "payload": {
+      "teamId": "team-1",
+      "activityId": "1001",
+      "teamVersion": "3",
+      "outTradeNoList": [
+        "order-1"
+      ],
+      "reconciliationId": "reconcile-1",
+      "rosterVersion": "roster-1",
+      "validEndTime": "2026-10-03T00:00:00.000Z"
+    }
+  },
+  {
+    "eventId": "example-6",
+    "schemaVersion": 1,
+    "producer": "group-buy-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "TEAM_FAILED",
+    "payload": {
+      "teamId": "team-1",
+      "activityId": "1001",
+      "teamVersion": "3",
+      "outTradeNoList": [
+        "order-1"
+      ],
+      "reconciliationId": "reconcile-1",
+      "reason": "TARGET_NOT_REACHED",
+      "refundRequiredOutTradeNoList": [
+        "order-1"
+      ]
+    }
+  },
+  {
+    "eventId": "example-7",
+    "schemaVersion": 1,
+    "producer": "group-buy-market",
+    "occurredAt": "2026-10-03T00:00:00.000Z",
+    "source": "s01",
+    "channel": "c01",
+    "correlationId": null,
+    "eventType": "EVENT_PROCESSING_RESULT",
+    "payload": {
+      "originalEventId": "example-001",
+      "originalEventType": "PAYMENT_SUCCEEDED",
+      "outcome": "APPLIED",
+      "code": "0000",
+      "info": "SUCCESS",
+      "processedAt": "2026-10-03T00:00:00.000Z",
+      "result": {
+        "orderId": "A001",
+        "outTradeNo": "order-1",
+        "teamId": "team-1",
+        "payment": {
+          "paymentId": "payment-1",
+          "paidAmount": "80.00",
+          "currency": "CNY",
+          "paidAt": "2026-10-02T23:59:59.000Z"
+        },
+        "orderStatus": "PAID",
+        "teamStatus": "FORMING",
+        "recordVersion": "2",
+        "teamVersion": "2"
+      }
+    }
+  }
+]

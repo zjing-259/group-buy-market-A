@@ -13,6 +13,12 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 public class GroupBuyOrder {
+    private String goodsId;
+    /** Creation parameter; persisted as database-generated valid_start_time / valid_end_time. */
+    private Integer validTime;
+    /** Current activity bounds used by the conditional reservation write. */
+    private Date activityStartTime;
+    private Date activityEndTime;
     /** 自增ID */
     private Long id;
     /** 拼单组队ID */

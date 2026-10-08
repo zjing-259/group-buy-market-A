@@ -10,6 +10,7 @@
     <artifactId>group-buy-market-domain</artifactId>
 
     <dependencies>
+        <dependency><groupId>org.springframework</groupId><artifactId>spring-tx</artifactId></dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -1,6 +1,24 @@
 server:
   port: 8091
 
+dubbo:
+  application:
+    name: group-buy-market-v2
+  protocol:
+    name: tri
+    port: 50051
+  registry:
+    address: N/A
+
+ab:
+  v2:
+    env: dev
+    enabled: false
+    rocketmq:
+      nameserver: 127.0.0.1:9876
+      # Explicit exception for the loopback-only development Broker.
+      require-tls: false
+
 # 线程池配置
 thread:
   pool:
@@ -10,14 +28,14 @@ thread:
         max-pool-size: 50
         keep-alive-time: 5000
         block-queue-size: 5000
-        policy: CallerRunsPolicy
+        policy: AbortPolicy
 
 # 数据库配置；启动时配置数据库资源信息
 spring:
   datasource:
     username: root
     password: ${SPRING_DATASOURCE_PASSWORD}
-    url: jdbc:mysql://127.0.0.1:13306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://127.0.0.1:13306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&connectTimeout=5000&socketTimeout=5000
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: Retail_HikariCP
@@ -26,7 +44,7 @@ spring:
       maximum-pool-size: 25
       auto-commit: true
       max-lifetime: 1800000
-      connection-timeout: 30000
+      connection-timeout: 5000
       connection-test-query: SELECT 1
     type: com.zaxxer.hikari.HikariDataSource
 

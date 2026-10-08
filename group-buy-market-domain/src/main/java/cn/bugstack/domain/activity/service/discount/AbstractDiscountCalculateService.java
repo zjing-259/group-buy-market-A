@@ -14,6 +14,8 @@ public abstract class AbstractDiscountCalculateService implements IDiscountCalcu
 
     @Override
     public BigDecimal calculate(String userId, BigDecimal originalPrice, GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount){
+        originalPrice = PricePolicy.original(originalPrice);
+        if (groupBuyDiscount == null) PricePolicy.fail();
         if(DiscountTypeEnum.TAG.equals(groupBuyDiscount.getDiscountType())){
             boolean isCrowRange = filterTagId(userId, groupBuyDiscount.getTagId());
             if(!isCrowRange) {
@@ -24,7 +26,7 @@ public abstract class AbstractDiscountCalculateService implements IDiscountCalcu
             }
         }
 
-        return doCalculate(originalPrice, groupBuyDiscount);
+        return PricePolicy.payable(originalPrice, doCalculate(originalPrice, groupBuyDiscount));
     }
 
     protected abstract BigDecimal doCalculate(BigDecimal originalPrice, GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount);
@@ -34,11 +36,4 @@ public abstract class AbstractDiscountCalculateService implements IDiscountCalcu
         return repository.isTagCrowRange(tagId, userId);
     }
 
-    //防止倒贴钱
-    protected BigDecimal ensureMinimumPrice(BigDecimal price) {
-        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            return new BigDecimal("0.01");
-        }
-        return price;
-    }
 }

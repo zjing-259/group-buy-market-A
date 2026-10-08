@@ -27,6 +27,10 @@ public class NotifyTaskEntity {
      * 参数对象
      */
     private String parameterJson;
+    /** 本次认领令牌；结果写回必须与当前令牌一致。 */
+    private String claimToken;
+    private Integer retryDelaySeconds;
+    private String lastError;
 
     public String lockKey() {
         return "notify_job_lock_key_" + this.teamId;

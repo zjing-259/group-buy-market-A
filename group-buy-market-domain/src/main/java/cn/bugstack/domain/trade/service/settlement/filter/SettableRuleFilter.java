@@ -31,7 +31,15 @@ public class SettableRuleFilter implements ILogicHandler<TradeSettlementRuleComm
         //查询外部的订单时间
         Date outTradeTime = requestParameter.getOutTradeTime();
         //判断外部订单时间是否在拼单有效时间之后
-        if(!outTradeTime.before(groupBuyTeamEntity.getValidEndTime())){
+        if (marketPayOrderEntity.getTradeOrderStatusEnumVO() == cn.bugstack.domain.trade.model.valobj.TradeOrderStatusEnumVO.COMPLETE) {
+            // The stored payment fact was already validated on its first transition.
+            dynamicContext.setGroupBuyTeamEntity(groupBuyTeamEntity);
+            return next(requestParameter, dynamicContext);
+        }
+        if(outTradeTime == null || marketPayOrderEntity.getCreateTime() == null ||
+                outTradeTime.before(marketPayOrderEntity.getCreateTime()) ||
+                outTradeTime.before(groupBuyTeamEntity.getValidStartTime()) ||
+                outTradeTime.after(new Date()) || !outTradeTime.before(groupBuyTeamEntity.getValidEndTime())){
             throw new AppException(ResponseCode.E0106);
         }
         //写入上下文

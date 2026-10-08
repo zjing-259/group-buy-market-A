@@ -198,7 +198,8 @@ CREATE TABLE `group_buy_order` (
                                    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                    `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                    PRIMARY KEY (`id`),
-                                   UNIQUE KEY `uq_team_id` (`team_id`)
+                                   UNIQUE KEY `uq_team_id` (`team_id`),
+                                   `goods_id` varchar(16) DEFAULT NULL COMMENT 'Team SKU; legacy NULL is not joinable'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `group_buy_order` WRITE;
@@ -231,14 +232,18 @@ CREATE TABLE `group_buy_order_list` (
                                         `original_price` decimal(8,2) NOT NULL COMMENT '原始价格',
                                         `deduction_price` decimal(8,2) NOT NULL COMMENT '折扣金额',
                                         `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态；0初始锁定、1消费完成、2用户退单',
-                                        `out_trade_no` varchar(12) NOT NULL COMMENT '外部交易单号-确保外部调用唯一幂等',
-                                        `out_trade_time` datetime DEFAULT NULL COMMENT '外部交易时间',
+                                        `out_trade_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin NOT NULL COMMENT '外部交易单号-确保外部调用唯一幂等',
+                                        `out_trade_time` datetime(3) DEFAULT NULL COMMENT '外部交易时间',
                                         `biz_id` varchar(64) NOT NULL COMMENT '业务唯一ID',
                                         `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                         `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                         PRIMARY KEY (`id`),
                                         UNIQUE KEY `uq_order_id` (`order_id`),
-                                        KEY `idx_user_id_activity_id` (`user_id`,`activity_id`)
+                                        KEY `idx_user_id_activity_id` (`user_id`,`activity_id`),
+                                        `pay_price` decimal(8,2) DEFAULT NULL,
+                                        `request_team_id` varchar(8) DEFAULT NULL,
+                                        `notify_url` varchar(512) DEFAULT NULL,
+                                        UNIQUE KEY `uq_sc_out_trade` (`source`,`channel`,`out_trade_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `group_buy_order_list` WRITE;
@@ -263,14 +268,19 @@ CREATE TABLE `notify_task` (
                                `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
                                `activity_id` bigint(8) NOT NULL COMMENT '活动ID',
                                `team_id` varchar(8) NOT NULL COMMENT '拼单组队ID',
-                               `notify_url` varchar(128) NOT NULL COMMENT '回调接口',
+                               `notify_url` varchar(512) NOT NULL COMMENT '回调接口',
                                `notify_count` int(8) NOT NULL COMMENT '回调次数',
-                               `notify_status` tinyint(1) NOT NULL COMMENT '回调状态【0初始、1完成、2重试、3失败】',
+                               `notify_status` tinyint(1) NOT NULL COMMENT '回调状态【0初始、1完成、2重试、3失败、4处理中】',
                                `parameter_json` varchar(256) NOT NULL COMMENT '参数对象',
+                               `claim_token` varchar(36) DEFAULT NULL,
+                               `lease_until` datetime(3) DEFAULT NULL,
+                               `next_attempt_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+                               `last_error` varchar(256) DEFAULT NULL,
                                `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                                PRIMARY KEY (`id`),
-                               UNIQUE KEY `uq_team_id` (`team_id`)
+                               UNIQUE KEY `uq_team_id` (`team_id`),
+                               KEY `idx_notify_due` (`notify_status`, `next_attempt_time`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `notify_task` WRITE;
@@ -351,3 +361,16 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+CREATE TABLE IF NOT EXISTS trade_request_guard (
+    source VARCHAR(8) NOT NULL,
+    channel VARCHAR(8) NOT NULL,
+    out_trade_no VARCHAR(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin NOT NULL,
+    PRIMARY KEY (source, channel, out_trade_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS trade_quota_guard (
+    user_id VARCHAR(64) NOT NULL,
+    activity_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, activity_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

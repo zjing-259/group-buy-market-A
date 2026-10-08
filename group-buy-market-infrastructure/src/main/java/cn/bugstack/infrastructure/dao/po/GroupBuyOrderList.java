@@ -17,6 +17,9 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 public class GroupBuyOrderList extends Page{
+    private BigDecimal payPrice;
+    private String requestTeamId;
+    private String notifyUrl;
     /** 自增ID */
     private Long id;
     /** 用户ID */

@@ -6,6 +6,7 @@
     <!-- 开启驼峰命名自动转换：数据库字段 activity_id → 实体类 activityId -->
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="defaultStatementTimeout" value="5"/>
         <!-- 输出SQL日志 -->
         <setting name="logImpl" value="SLF4J"/>
     </settings>

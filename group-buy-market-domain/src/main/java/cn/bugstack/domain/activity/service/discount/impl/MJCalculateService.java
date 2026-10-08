@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import cn.bugstack.domain.activity.service.discount.AbstractDiscountCalculateService;
 
 import java.math.BigDecimal;
+import cn.bugstack.domain.activity.service.discount.PricePolicy;
 
 @Slf4j
 @Service("MJ")
@@ -15,19 +16,20 @@ public class MJCalculateService extends AbstractDiscountCalculateService {
     @Override
     protected BigDecimal doCalculate(BigDecimal originalPrice, GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount) {
         String marketExpr = groupBuyDiscount.getMarketExpr();
-        String[] split = marketExpr.split(Constants.SPLIT);
+        String[] split = marketExpr == null ? new String[0] : marketExpr.split(Constants.SPLIT, -1);
         //添加检验，满减类型必须有两个参数。
         if (split.length != 2) {
-            throw new IllegalArgumentException("满减表达式格式错误: " + marketExpr);
+            PricePolicy.fail();
         }
         //将两个值设为x,y
-        BigDecimal x = new BigDecimal(split[0]);
-        BigDecimal y = new BigDecimal(split[1]);
+        BigDecimal x = PricePolicy.nonNegative(split[0]);
+        BigDecimal y = PricePolicy.nonNegative(split[1]);
 
+        if (x.signum() <= 0 || y.compareTo(x) > 0) PricePolicy.fail();
         if(originalPrice.compareTo(x) < 0)   return originalPrice;
 
         BigDecimal deductionPrice= originalPrice.subtract(y);
 
-        return ensureMinimumPrice(deductionPrice);
+        return deductionPrice;
     }
 }

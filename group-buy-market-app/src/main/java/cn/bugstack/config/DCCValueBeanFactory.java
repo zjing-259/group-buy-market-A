@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 //使用Redis来完成动态配置中心（DCC）的开发。
@@ -27,7 +26,7 @@ public class DCCValueBeanFactory implements BeanPostProcessor {
 
     private final RedissonClient redissonClient;
 
-    private final Map<String, Object> dccObject = new HashMap<>();
+    private final Map<String, Object> dccObject = new java.util.concurrent.ConcurrentHashMap<>();
 
     public DCCValueBeanFactory(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
@@ -38,11 +37,16 @@ public class DCCValueBeanFactory implements BeanPostProcessor {
         RTopic topic = redissonClient.getTopic("group_buy_market_dcc");
 
         topic.addListener(String.class, (charSequence, s) -> {
-            String[] split = s.split(Constants.SPLIT);
+            String[] split = s.split(Constants.SPLIT, 2);
+            if (split.length != 2) return;
 
             String attribute = split[0];
             String key = BATH_CONFIG_PATH + attribute;
             String value = split[1];
+            if ("cutRange".equals(attribute)) {
+                try { cn.bugstack.types.common.CutRangePolicy.parse(value); }
+                catch (IllegalArgumentException e) { log.warn("Ignoring invalid cutRange configuration"); return; }
+            }
 
             RBucket<Object> bucket = redissonClient.getBucket(key);
 
@@ -111,6 +115,14 @@ public class DCCValueBeanFactory implements BeanPostProcessor {
                     bucket.set(defaultValue);
                 }else {
                     setValue = bucket.get();
+                }
+                if ("cutRange".equals(split[0])) {
+                    try { cn.bugstack.types.common.CutRangePolicy.parse(setValue); }
+                    catch (IllegalArgumentException e) {
+                        log.warn("Invalid stored cutRange, restoring configured default");
+                        setValue = defaultValue;
+                        bucket.set(defaultValue);
+                    }
                 }
 
                 field.setAccessible(true);

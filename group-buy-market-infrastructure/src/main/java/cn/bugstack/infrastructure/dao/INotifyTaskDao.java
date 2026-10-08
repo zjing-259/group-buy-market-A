@@ -13,10 +13,15 @@ public interface INotifyTaskDao {
 
     NotifyTask queryUnExecutedNotifyTaskByTeamId(String teamId);
 
-    int updateNotifyTaskStatusSuccess(String teamId);
+    int claimNotifyTask(NotifyTask task);
+    NotifyTask queryClaimedNotifyTask(NotifyTask task);
+    String lockNotifyTaskByTeamId(String teamId);
+    int expireExhaustedClaims();
 
-    int updateNotifyTaskStatusError(String teamId);
+    int updateNotifyTaskStatusSuccess(NotifyTask task);
 
-    int updateNotifyTaskStatusRetry(String teamId);
+    int updateNotifyTaskStatusError(NotifyTask task);
+
+    int updateNotifyTaskStatusRetry(NotifyTask task);
 
 }

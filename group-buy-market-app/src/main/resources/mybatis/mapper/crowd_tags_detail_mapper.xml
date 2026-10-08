@@ -14,5 +14,14 @@
         insert into crowd_tags_detail(tag_id, user_id, create_time, update_time)
         values (#{tagId}, #{userId}, now(), now())
     </insert>
+    <select id="isExactMember" resultType="boolean">
+        select exists(
+            select 1 from crowd_tags_detail d
+            join crowd_tags t on t.tag_id=d.tag_id
+            where d.tag_id=#{tagId} and d.user_id=#{userId}
+              and binary d.tag_id=binary #{tagId} and binary d.user_id=binary #{userId}
+              and binary t.tag_id=binary #{tagId}
+        )
+    </select>
 
 </mapper>

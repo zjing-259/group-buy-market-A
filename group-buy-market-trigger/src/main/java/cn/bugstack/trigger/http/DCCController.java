@@ -29,13 +29,16 @@ public class DCCController implements IDCCService {
     @Override
     public Response<Boolean> updateConfig(@RequestParam String key, @RequestParam String value) {
         try{
-
+            if ("cutRange".equals(key)) cn.bugstack.types.common.CutRangePolicy.parse(value);
             dccTopic.publish(key + "," + value);
 
             return Response.<Boolean>builder()
                     .code(ResponseCode.SUCCESS.getCode())
-                    .info(ResponseCode.SUCCESS.getInfo())
+                    .info(ResponseCode.SUCCESS.getInfo()).data(true)
                     .build();
+        }catch (IllegalArgumentException e){
+            return Response.<Boolean>builder().code(ResponseCode.ILLEGAL_PARAMETER.getCode())
+                    .info(ResponseCode.ILLEGAL_PARAMETER.getInfo()).data(false).build();
         }catch (Exception e){
             return Response.<Boolean>builder()
                     .code(ResponseCode.UN_ERROR.getCode())

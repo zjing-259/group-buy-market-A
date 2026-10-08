@@ -5,7 +5,7 @@ import cn.bugstack.types.annotations.DCCValue;
 import cn.bugstack.types.common.Constants;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import cn.bugstack.types.common.CutRangePolicy;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,7 +14,7 @@ public class DCCService {
     @DCCValue("downgradeSwitch:0")
     private String downgradeSwitch;
     @DCCValue("cutRange:100")//默认全部通过
-    private String cutRange;
+    private volatile String cutRange;
     @DCCValue("scBlacklist:s02c02")//默认黑名单s02c02
     private String scBlacklist;
 
@@ -23,10 +23,10 @@ public class DCCService {
     }
 
     public boolean iscutRange(String userId){
-        int hashCode = Math.abs(userId.hashCode());
-        int lastTwoDigits = hashCode % 100;
-
-        return lastTwoDigits <= Integer.parseInt(cutRange);
+        int percent;
+        try { percent = CutRangePolicy.parse(cutRange); }
+        catch (IllegalArgumentException e) { return false; }
+        return Math.floorMod(userId.hashCode(), 100) < percent;
     }
 
     public boolean isSCBlackIntercept(String source, String channel){

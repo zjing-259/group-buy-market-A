@@ -4,6 +4,7 @@
 
     <resultMap id="dataMap" type="cn.bugstack.infrastructure.dao.po.GroupBuyOrder">
         <id column="id" property="id"/>
+        <result column="goods_id" property="goodsId"/>
         <result column="team_id" property="teamId"/>
         <result column="activity_id" property="activityId"/>
         <result column="source" property="source"/>
@@ -24,21 +25,30 @@
 
     <insert id="insert" parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrder">
         insert into group_buy_order(
-            team_id, activity_id, source, channel, original_price,
+            team_id, activity_id, goods_id, source, channel, original_price,
             deduction_price, pay_price, target_count, complete_count, lock_count, status,
             create_time, update_time, notify_url, valid_start_time, valid_end_time
-        ) values(
-                    #{teamId}, #{activityId}, #{source}, #{channel}, #{originalPrice},
+        ) select
+                    #{teamId}, #{activityId}, #{goodsId}, #{source}, #{channel}, #{originalPrice},
                     #{deductionPrice}, #{payPrice}, #{targetCount}, #{completeCount},
-                    #{lockCount}, 0, now(), now(), #{notifyUrl}, #{validStartTime}, #{validEndTime}
-                )
+                    #{lockCount}, 0, now(), now(), #{notifyUrl}, now(), date_add(now(), interval #{validTime} minute)
+        where #{activityStartTime} &lt;= now(3) and now(3) &lt; #{activityEndTime}
     </insert>
 
-    <update id="updateAddLockCount" parameterType="java.lang.String">
+    <select id="lockTeamById" resultType="java.lang.String" useCache="false" flushCache="true">
+        select team_id from group_buy_order where team_id = #{teamId} for update
+    </select>
+
+    <update id="updateAddLockCount" parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyOrder">
         <![CDATA[
         update group_buy_order
         set lock_count = lock_count + 1, update_time= now()
         where team_id = #{teamId} and lock_count < target_count
+          and status = 0 and valid_start_time <= now(3) and valid_end_time > now(3)
+          and #{activityStartTime} <= now(3) and now(3) < #{activityEndTime}
+          and activity_id = #{activityId} and BINARY goods_id = BINARY #{goodsId}
+          and BINARY source = BINARY #{source} and BINARY channel = BINARY #{channel}
+          and BINARY notify_url = BINARY #{notifyUrl}
         ]]>
     </update>
 
@@ -56,7 +66,7 @@
     <update id="updateOrderStatus2COMPLETE" parameterType="java.lang.String">
         update group_buy_order
         set status = 1, update_time= now()
-        where team_id = #{teamId} and status = 0
+        where team_id = #{teamId} and status = 0 and complete_count = target_count
     </update>
 
     <select id="queryGroupBuyTeamByTeamId" parameterType="java.lang.String" resultMap="dataMap">
@@ -76,7 +86,17 @@
         select team_id, activity_id, target_count, complete_count, lock_count, status, valid_start_time, valid_end_time,
         notify_url
         from group_buy_order
-        where status = 0 and target_count > lock_count and team_id in
+        where status = 0 and target_count > lock_count
+          and valid_start_time &lt;= now(3) and now(3) &lt; valid_end_time and team_id in
+        <foreach item="teamId" collection="teamIds" open="(" separator="," close=")">
+            #{teamId}
+        </foreach>
+    </select>
+
+    <select id="queryOwnInProgressTeamsByIds" parameterType="java.util.Set" resultMap="dataMap">
+        select team_id, activity_id, target_count, complete_count, lock_count, status, valid_start_time, valid_end_time
+        from group_buy_order
+        where status=0 and valid_start_time &lt;= now(3) and now(3) &lt; valid_end_time and team_id in
         <foreach item="teamId" collection="teamIds" open="(" separator="," close=")">
             #{teamId}
         </foreach>

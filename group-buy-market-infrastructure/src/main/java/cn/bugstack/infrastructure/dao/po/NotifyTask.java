@@ -22,7 +22,7 @@ public class NotifyTask {
     private String notifyUrl;
     /** 回调次数 */
     private Integer notifyCount;
-    /** 回调状态【0初始、1完成、2重试、3失败】 */
+    /** 回调状态【0初始、1完成、2重试、3失败、4处理中】 */
     private Integer notifyStatus;
     /** 参数对象 */
     private String parameterJson;
@@ -30,4 +30,7 @@ public class NotifyTask {
     private Date createTime;
     /** 更新时间 */
     private Date updateTime;
+    private String claimToken;
+    private Integer retryDelaySeconds;
+    private String lastError;
 }

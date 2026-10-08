@@ -12,6 +12,18 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 public class MarketPayOrderEntity {
+    private String outTradeNo;
+    private String userId;
+    private Long activityId;
+    private String goodsId;
+    private String source;
+    private String channel;
+    private String requestTeamId;
+    private String notifyUrl;
+    private BigDecimal originalPrice;
+    private BigDecimal payPrice;
+    private java.util.Date createTime;
+    private java.util.Date outTradeTime;
     /** 拼单组队ID */
     private String teamId;
     /** 预购订单ID */
