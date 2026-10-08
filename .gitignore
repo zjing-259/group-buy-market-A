@@ -8,14 +8,7 @@ target/
 .idea/
 *.iml
 
-# 忽略本地日志
-data/log/
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
 *.iws
-*.iml
 *.ipr
 
 ### Eclipse ###
@@ -42,3 +35,23 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# 本地日志（覆盖根目录和各模块）
+*.log
+**/data/log/
+
+# 本地环境变量；配置模板仍可提交
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# 本机 Docker 配置与 Python 缓存
+/.docker-local/
+__pycache__/
+*.pyc
+*.pyo
+
+# Local A/B integration credentials and generated RocketMQ ACL
+docs/dev-ops/ab-v2/.local/
