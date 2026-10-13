@@ -22,7 +22,7 @@ public class TagService implements ITagService{
         CrowdTagsJobEntity crowdTagsJobEntity = repository.queryCrowTagsJobEntity(tagId, batchId);
         //采集用户数据
         //暂时自定义两个用户
-        List<String> userList = Arrays.asList("wh", "zj", "xiaofuge", "lierqou");//不用改userList
+        List<String> userList = Arrays.asList("wh", "zj", "xiaofuge", "liergou", "demo01", "demo02", "demo03");//不用改userList
         for (String userId : userList) {
             repository.addCrowTagsUserId(tagId, userId);
         }
