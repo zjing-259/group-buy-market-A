@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TD-00 frozen discovery wire contract; runtime implementation pending",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^(?!\\s)(?:[^\\r\\n]*\\S)$(?![\\s\\S])",
+      "x-max-utf16-units": 64
+    },
+    "Version": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,18}$(?![\\s\\S])",
+      "x-maximum-decimal": "9223372036854775807"
+    },
+    "Time": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$(?![\\s\\S])"
+    },
+    "Scope": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8,
+      "pattern": "^(?!\\s)(?:[^\\r\\n]*\\S)$(?![\\s\\S])",
+      "x-max-utf16-units": 8
+    },
+    "Cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+    },
+    "TeamDiscoveryRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "channel",
+        "userId",
+        "goodsId",
+        "activityId",
+        "productVersion",
+        "limit",
+        "cursor"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/Scope"
+        },
+        "channel": {
+          "$ref": "#/$defs/Scope"
+        },
+        "userId": {
+          "$ref": "#/$defs/Id"
+        },
+        "goodsId": {
+          "$ref": "#/$defs/Id"
+        },
+        "activityId": {
+          "$ref": "#/$defs/Version"
+        },
+        "productVersion": {
+          "$ref": "#/$defs/Version"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "TeamDiscoveryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "teamId",
+        "activityId",
+        "goodsId",
+        "teamVersion",
+        "teamStatus",
+        "targetCount",
+        "reservedCount",
+        "paidCount",
+        "validStartTime",
+        "validEndTime"
+      ],
+      "properties": {
+        "teamId": {
+          "$ref": "#/$defs/Id"
+        },
+        "activityId": {
+          "$ref": "#/$defs/Version"
+        },
+        "goodsId": {
+          "$ref": "#/$defs/Id"
+        },
+        "teamVersion": {
+          "$ref": "#/$defs/Version"
+        },
+        "teamStatus": {
+          "const": "FORMING"
+        },
+        "targetCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "reservedCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "paidCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "validStartTime": {
+          "$ref": "#/$defs/Time"
+        },
+        "validEndTime": {
+          "$ref": "#/$defs/Time"
+        }
+      },
+      "x-invariants": [
+        "1 <= paidCount <= reservedCount < targetCount <= 100",
+        "validStartTime <= page.serverTime < validEndTime",
+        "activityId/goodsId equal page context",
+        "targetCount equals current quote",
+        "strict (validEndTime, teamId utf8mb4_0900_bin) order; unique teamId"
+      ]
+    },
+    "TeamDiscoveryPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "channel",
+        "userId",
+        "goodsId",
+        "activityId",
+        "productVersion",
+        "serverTime",
+        "items",
+        "nextCursor",
+        "hasMore"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/Scope"
+        },
+        "channel": {
+          "$ref": "#/$defs/Scope"
+        },
+        "userId": {
+          "$ref": "#/$defs/Id"
+        },
+        "goodsId": {
+          "$ref": "#/$defs/Id"
+        },
+        "activityId": {
+          "$ref": "#/$defs/Version"
+        },
+        "productVersion": {
+          "$ref": "#/$defs/Version"
+        },
+        "serverTime": {
+          "$ref": "#/$defs/Time"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/TeamDiscoveryItem"
+          }
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Cursor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      },
+      "x-invariants": [
+        "items.length <= request.limit",
+        "hasMore iff nextCursor != null; hasMore implies items.length == request.limit",
+        "nextCursor binds final returned item, not the limit+1 lookahead",
+        "page identity/context equal authenticated request",
+        "empty items => nextCursor=null and hasMore=false"
+      ]
+    },
+    "CursorPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cursorVersion",
+        "sortVersion",
+        "source",
+        "channel",
+        "userId",
+        "goodsId",
+        "activityId",
+        "productVersion",
+        "lastEndTime",
+        "lastTeamId"
+      ],
+      "properties": {
+        "cursorVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "sortVersion": {
+          "const": "END_TEAM_ASC_V1"
+        },
+        "source": {
+          "$ref": "#/$defs/Scope"
+        },
+        "channel": {
+          "$ref": "#/$defs/Scope"
+        },
+        "userId": {
+          "$ref": "#/$defs/Id"
+        },
+        "goodsId": {
+          "$ref": "#/$defs/Id"
+        },
+        "activityId": {
+          "$ref": "#/$defs/Version"
+        },
+        "productVersion": {
+          "$ref": "#/$defs/Version"
+        },
+        "lastEndTime": {
+          "$ref": "#/$defs/Time"
+        },
+        "lastTeamId": {
+          "$ref": "#/$defs/Id"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/TeamDiscoveryRequest"
+}

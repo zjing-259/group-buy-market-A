@@ -56,7 +56,7 @@ public class V2MarketingContractTest {
                 .groupBuyDiscount(GroupBuyActivityDiscountVO.GroupBuyDiscount.builder().marketPlan("ZJ").build()).build();
     }
     @Before public void seed() {
-        assertEquals("group_buy_market_phase1_test",jdbc.queryForObject("select database()",String.class));
+        V2TestDatabase.assertIsolated(jdbc);
         jdbc.update("delete from sc_sku_activity where activity_id=991201");
         jdbc.update("insert into sc_sku_activity(source,channel,activity_id,goods_id) values('s01','c01',991201,'marketing-test')");
         jdbc.update("delete from ab_product_projection where goods_id='marketing-test'");

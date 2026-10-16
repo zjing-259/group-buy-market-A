@@ -27,4 +27,5 @@ public final class V2Codes {
     public static final String RECONCILIATION_INCOMPLETE = "RECONCILIATION_INCOMPLETE";
     public static final String REFUND_CONFLICT = "REFUND_CONFLICT";
     public static final String DEPENDENCY_UNAVAILABLE = "DEPENDENCY_UNAVAILABLE";
+    public static final String TEAM_DISCOVERY_CONTEXT_CHANGED = "TEAM_DISCOVERY_CONTEXT_CHANGED";
 }

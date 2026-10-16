@@ -35,11 +35,7 @@ public class V2ProductEventTest {
     @Import({V2EventEngine.class,V2OutboxService.class,V2PaymentIdentity.class})
     public static class Config {
         @Bean(destroyMethod="close") public HikariDataSource dataSource() {
-            String password=System.getenv("PHASE1_DB_PASSWORD");
-            if (password==null) throw new IllegalStateException("Set PHASE1_DB_PASSWORD");
-            HikariDataSource ds=new HikariDataSource();
-            ds.setJdbcUrl("jdbc:mysql://127.0.0.1:13306/group_buy_market_phase1_test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai");
-            ds.setUsername("root"); ds.setPassword(password); return ds;
+            return V2TestDatabase.dataSource();
         }
         @Bean public JdbcTemplate jdbcTemplate(DataSource ds) { return new JdbcTemplate(ds); }
         @Bean public PlatformTransactionManager transactionManager(DataSource ds) { return new DataSourceTransactionManager(ds); }
@@ -58,7 +54,7 @@ public class V2ProductEventTest {
     @Resource private V2EventEngine events;
 
     @Before public void clean() {
-        assertEquals("group_buy_market_phase1_test",jdbc.queryForObject("select database()",String.class));
+        V2TestDatabase.assertIsolated(jdbc);
         jdbc.update("delete from ab_outbox");
         jdbc.update("delete from ab_waiting_dependency");
         jdbc.update("delete from ab_inbox");

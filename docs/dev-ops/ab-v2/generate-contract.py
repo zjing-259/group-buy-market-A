@@ -1,10 +1,14 @@
 """Generate Java 8 transport-only POJOs from the reviewed A/B v2 field list."""
 from pathlib import Path
+import argparse
 
 ROOT = Path(__file__).resolve().parents[3] / "group-buy-market-contract" / "src" / "main" / "java" / "cn" / "bugstack" / "api" / "v2"
 
 # A tuple is (class name, base type, fields). No framework or persistence types cross this boundary.
 SCHEMA = [
+    ("TeamDiscoveryRequest", "BaseRequest", "String userId; String goodsId; String activityId; String productVersion; Integer limit; String cursor"),
+    ("TeamDiscoveryPage", None, "String source; String channel; String userId; String goodsId; String activityId; String productVersion; String serverTime; java.util.List<TeamDiscoveryItem> items; String nextCursor; Boolean hasMore"),
+    ("TeamDiscoveryItem", None, "String teamId; String activityId; String goodsId; String teamVersion; String teamStatus; Integer targetCount; Integer reservedCount; Integer paidCount; String validStartTime; String validEndTime"),
     ("BaseRequest", None, "String source; String channel"),
     ("TrialRequest", "BaseRequest", "String userId; String goodsId; Integer quantity; String productVersion; String activityId"),
     ("TrialResponse", None, "Boolean available; Boolean visible; Boolean eligible; String reasonCode; Offer offer; String quotedAt"),
@@ -36,7 +40,7 @@ SCHEMA = [
     ("EventProcessingResultPayload", None, "String originalEventId; String originalEventType; String outcome; String code; String info; String processedAt; Object result"),
 ]
 
-def generate(name, base, specification):
+def generate(name, base, specification, check=False):
     fields = []
     for part in specification.split("; "):
         typ, field = part.rsplit(" ", 1)
@@ -50,9 +54,21 @@ def generate(name, base, specification):
         source += ["    public " + typ + " get" + cap + "() { return " + field + "; }", "    public void set" + cap + "(" + typ + " value) { this." + field + " = value; }"]
     source.append("}")
     path = ROOT / (name + ".java")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(source) + "\n", encoding="utf-8")
+    expected = "\n".join(source) + "\n"
+    if check:
+        if not path.exists() or path.read_text(encoding="utf-8") != expected:
+            raise SystemExit("Contract source drift: " + name)
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(expected, encoding="utf-8")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--check', action='store_true', help='Read-only drift check; never rewrite existing DTOs')
+    parser.add_argument('--only', nargs='+', help='Generate/check selected DTOs only')
+    args = parser.parse_args()
+    if args.only and set(args.only) - {row[0] for row in SCHEMA}:
+        parser.error('Unknown DTO')
     for definition in SCHEMA:
-        generate(*definition)
+        if not args.only or definition[0] in args.only:
+            generate(*definition, check=args.check)

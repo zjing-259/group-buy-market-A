@@ -1,0 +1,15 @@
+# TD-00 frozen contract bytes must survive checkout without EOL conversion.
+group-buy-market-contract/pom.xml -text whitespace=cr-at-eol
+group-buy-market-contract/src/main/java/cn/bugstack/api/v2/TeamDiscovery*.java -text whitespace=cr-at-eol
+group-buy-market-contract/src/main/java/cn/bugstack/api/v2/V2Codes.java -text whitespace=cr-at-eol
+docs/schemas/team-discovery* -text whitespace=cr-at-eol
+docs/dev-ops/ab-v2/generate-contract.py -text whitespace=cr-at-eol
+
+# TD-01 release/test evidence hashes the approved source and migration bytes.
+pom.xml -text whitespace=cr-at-eol
+group-buy-market-app/src/main/java/cn/bugstack/v2/V2TeamDiscovery*.java -text whitespace=cr-at-eol
+group-buy-market-app/src/main/java/cn/bugstack/v2/V2MarketingEngine.java -text whitespace=cr-at-eol
+group-buy-market-app/src/main/java/cn/bugstack/v2/V2Security.java -text whitespace=cr-at-eol
+group-buy-market-app/src/test/java/cn/bugstack/test/v2/*.java -text whitespace=cr-at-eol
+docs/dev-ops/mysql/sql/migrations/20261014-team-discovery.sql -text whitespace=cr-at-eol
+docs/tests/run-team-discovery.py -text whitespace=cr-at-eol

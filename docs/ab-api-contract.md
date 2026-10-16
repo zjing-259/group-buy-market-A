@@ -1,5 +1,7 @@
 # A/B服务接口契约
 
+> 最新增量（2026-10-14）：TD-01 的 TeamDiscoveryService.list 已实现并通过隔离MySQL／真实TCP TLS验收，新契约1.1.0-td.1已安装本机Maven；TD-02 的 B 消费依赖与登录待拼 HTTP 已实现，在隔离 B HTTP→真实 A TLS 调用中通过。实际运行 B-06 仍使用旧镜像，商品页面未接入，新索引未迁移原库。第14节保留TD-00冻结时点，A实现／迁移见第15节，B验收见 `D:/Java/zj-market/docs/team-discovery-development.md` 第15节。
+
 版本：v2契约基线1.1（Dubbo3 + RocketMQ），2026-10-02。状态：D1～D3已由用户选择，供A/B共同开发；本版替代1.0的A/B HTTP通信约定。A侧实现已完成隔离业务、实际TLS/RPC/MQ及独立Boot4夹具验收，实际B全流程和生产部署尚未完成，见 [TASK_PROGRESS.md](../TASK_PROGRESS.md)。具体技术参数为本契约约定，不代表已经完成部署验收。
 
 本文对应A-TODU的API-001～008及完整交易所需FEAT-001～004。A为拼团营销服务，B为商城服务；统一前端访问B。现有v1和65项回归是兼容基线，新增v2不能静默改变历史支付事实。
@@ -304,3 +306,62 @@ Java接口/DTO见 `group-buy-market-contract`；[消息Schema](schemas/ab-v2-eve
 ## 13. 复杂度评估
 
 本次补修属于中等契约维护复杂度：三类原事件×三种outcome形成固定九个分支，支付额外校验一层payment；以共享定义和条件Schema复用字段约束，未新增业务状态、数据库表或RPC。单消息校验成本随正文长度及字段/名单数量增长，受256KiB正文和100项名单上限约束；精确业务归属与状态核验仍由运行时执行。项目整体复杂度较高，主要来自跨服务事实、事务锁序和Inbox/Outbox恢复，而非这次结构约束。后续新增结果字段必须同步DTO/生产输出、生成器、样例及Schema专项验收。
+
+## 14. TD-00 商品待拼团队发现契约冻结（2026-10-14）
+
+本节为新增只读能力的冻结契约，**不是已发布 RPC**。Java8 传输候选坐标 `cn.bugstack:group-buy-market-contract:1.1.0-td.1`；既有 RPC service version `2.0.0`／环境 group 不变。A/B 当前运行依赖仍为 `1.0-SNAPSHOT`，候选不覆盖旧 jar、不安装或发布到仓库。A 消费版本切换及新服务白名单／Provider 属 TD-01，B 锁定依赖及 HTTP 实现属 TD-02；双方必须使用 [同一候选锁](../../zj-market/docs/team-discovery-contract-lock.json)中的 SHA-256，不各自重打不同字节冒充同一版本。修改已冻结契约须使用新版本并复验。
+
+### 14.1 服务、DTO 与安全输出
+
+新增独立 `cn.bugstack.api.v2.TeamDiscoveryService.list(TeamDiscoveryRequest)`，返回 `RpcResult<TeamDiscoveryPage>`，不修改原 TeamService。机器字段与约束见 [RPC／游标 Schema](schemas/team-discovery-v1.schema.json)、[黄金样例](schemas/team-discovery-v1.examples.json)；HTTP 见 [B OpenAPI](../../zj-market/docs/team-discovery-http-api.json)，完整 A→B 映射见 [机器规则](../../zj-market/docs/team-discovery-contract.json)。所有字段均明确输出，可选字段使用 null，禁止额外字段。Java POJO 本身不替代运行时校验，Schema 的 `x-invariants` 关系约束也须由实现执行。
+
+| 类型 | 冻结字段 |
+| --- | --- |
+| Request extends BaseRequest | 继承 source/channel；userId/goodsId/activityId/productVersion/limit/cursor |
+| Page | source/channel/userId/goodsId/activityId/productVersion/serverTime/items/nextCursor/hasMore |
+| Item | teamId/activityId/goodsId/teamVersion/teamStatus/targetCount/reservedCount/paidCount/validStartTime/validEndTime |
+
+身份由 B Principal 和后端渠道配置确定；登录 USER／OPERATOR 才可查询。source/channel 仍需 A 调用身份授权，精确匹配 userId。重新验证商品版本、活动、可见性及资格。只返回同商品／活动／渠道，FORMING，`validStartTime <= A数据库serverTime < validEndTime`，`1 <= paidCount <= reservedCount < targetCount <= 100`，且 targetCount 与当前试算一致的团队；排除当前用户有效未取消 RESERVATION。未付团不公开，但既有分享参团不变。绝不输出其他人的订单、支付、成员资料或 ownReservation。
+
+TLS／签名／nonce／规范 JSON 沿用第6节；首屏请求 cursor=null，所有继承字段参与签名。新方法仅在 TD-01 精确加入 `V2Security.METHODS`，TD-00 不提前授权。发现单次 RPC 最大3000ms，SQL query timeout 2秒，B 试算＋发现整体最多10000ms且按剩余预算缩短调用；retries=0。原交易 RPC 超时与恢复规则保持。
+
+### 14.2 游标、时间与分页
+
+排序固定 `(validEndTime ASC, teamId ASC)`，teamId 采用实际 `utf8mb4_0900_bin` 语义。同一次短只读一致读取固定一次数据库时间；不加写锁、不触发到期迁移。默认 limit=3，1～10，每页查 limit+1；仅前 limit 条返回，有下一页时 items.length=limit，游标锚定**最后返回项**，不锚定多查的一项。空列表成功且 nextCursor=null／hasMore=false。不返回总数，每页最新快照，不承诺翻页集合固定。
+
+游标是无填充 Base64URL 编码的规范 UTF-8 JSON，字段固定为 `cursorVersion=1, sortVersion=END_TEAM_ASC_V1, source, channel, userId, goodsId, activityId, productVersion, lastEndTime, lastTeamId`。JSON 字段递归字典序、无空白、不做 Unicode 归一化；与原签名规则一致。编码长1～1024，解码不超过768字节；拒绝非法 UTF-8、填充、重复／未知／缺失字段、非法时间／ID／版本、非规范再编码及未知排序版本。黄金游标用于互通验收，不是生产授权令牌。
+
+source/channel/userId 绑定不符或语法非法返回 `0002`；商品／活动／商品版本绑定变化返回新增 `TEAM_DISCOVERY_CONTEXT_CHANGED`。游标无需新密钥，不能从其字段取可信权限；即使篡改锚点仍必须完整重新施加范围、资格、名额及时间过滤。B 不信任旧报价，最后还需重查本地商品在售／版本／同步水位。页面显示当前用户报价，不要求同团历史成交价格／商品版本相同。
+
+### 14.3 HTTP、错误与兼容边界
+
+B 新路径 `GET /api/v1/products/{goodsId}/joinable-teams` 仅允许 limit／cursor，拒绝重复参数、空 cursor、未知参数和非空请求体；缺省 limit=3。采用 ApiResponse{code,message,data,requestId}，Cache-Control:no-store，X-Request-Id 与正文一致。先鉴权与本地商品可见性，再优先本人原购买，之后库存／同步和当前试算；不创建 confirmationId、订单或预留，不持 B 锁调用网络。
+
+| A／传输结果 | B 行为 |
+| --- | --- |
+| 0002，非法游标／参数 | 400 VALIDATION_FAILED，沿用 B 现有参数码；初稿 INVALID_PARAMETER 为概念名 |
+| AUTH_REQUIRED／AUTH_INVALID／FORBIDDEN／REPLAY_REJECTED／E0112 或 TLS 身份失败 | 502 INTEGRATION_AUTH_FAILED；与浏览器本地401／403区分 |
+| TEAM_DISCOVERY_CONTEXT_CHANGED，PRODUCT_VERSION_MISMATCH／CONFLICT、PRODUCT_NOT_SALEABLE | 409 TEAM_DISCOVERY_CONTEXT_CHANGED，清旧页重读 |
+| PRODUCT_NOT_FOUND | 200 UNAVAILABLE／PRODUCT_SYNC_PENDING，不伪称空候选 |
+| E0101／E0102／E0108 | 首屏200 UNAVAILABLE／NO_OFFER；持游标时409上下文变化 |
+| E0110 或试算不可见／无资格 | 200 UNAVAILABLE／INELIGIBLE，活动标识为null |
+| 0001／DEPENDENCY_UNAVAILABLE／E0003／E0004／E0105，缺服务／网络／超时／整体预算耗尽 | 503 DEPENDENCY_UNAVAILABLE，不返回空成功 |
+| 非法信封／归属／计数／时间／排序、未知业务码、失败夹带data | 502 UPSTREAM_RESPONSE_INVALID，拒绝整页 |
+
+本地限流冻结为429 RATE_LIMITED、Retry-After秒数；该码及发现限流实现归TD-02，并不修改旧身份限流响应。AVAILABLE 空数组才表示正常无候选；ACTIVE_PURCHASE 仅返回本人原orderId；UNAVAILABLE 仅四类原因 NO_OFFER／INELIGIBLE／PRODUCT_SYNC_PENDING／OUT_OF_STOCK，隐藏活动、无倒计时／游标。HTTP item 仅teamId、三人数、availableSlots、remainingPaidCount、validEndTime；两个派生人数不可混用。
+
+候选编译、61项定义／反例检查、Java8／21及36个旧类型兼容验证见 [TD-00过程](../../zj-market/docs/team-discovery-development.md#13-td-00-实施与验收2026-10-14)。真实TLS发现调用、索引／EXPLAIN、新页面和交易闭环均留后续阶段；旧B06镜像和旧测试数字不改写为新功能证据。Schema生成器覆盖全部DTO，`generate-contract.py --check`只读防漂移；仅生成新增DTO时使用 `--only`，不重写历史源文件。
+
+## 15. TD-01 A 查询实现与隔离验收（2026-10-14）
+
+`V2TeamDiscoveryRpc`／`V2TeamDiscoveryEngine`／`V2TeamDiscoveryCursor`已实现第14节只读发现契约。精确加入`TeamDiscoveryService.list`白名单，未开放任意v2方法。事务readOnly／REPEATABLE_READ／timeout2秒，候选PreparedStatement queryTimeout2秒，RPC timeout3000ms／retries0；每页复用一次数据库时间到营销资格复核与候选条件。既有营销quote两参数方法保持，通过新增时间参数重载供发现使用；旧交易锁序、支付退款规则及原接口未改变。
+
+新增迁移 [20261014-team-discovery.sql](dev-ops/mysql/sql/migrations/20261014-team-discovery.sql)一次性创建两个索引，历史SQL不改。查询显式使用`idx_ab_team_discovery`和`idx_ab_order_discovery_owner`；真实优化器曾选旧宽索引并扫描2012行，最终固定新索引后扫描12行得到LIMIT11结果。**部署新发现查询前必须在目标A库核对并应用迁移**，账号仍无DDL；缺索引不会静默全表回退。TD-01验收时原B06库未迁移、新包未替换镜像；2026-10-15 TD-06.2 已在主443原A库先核对再追加两索引，并运行TD-05新A镜像，完整发布与回退证据见 [TD-06.2验收](../../zj-market/docs/tests/td06-2-acceptance.json)。
+
+契约DTO／错误码／黄金样例的冻结字节保持；本机安装 `cn.bugstack:group-buy-market-contract:1.1.0-td.1` 的SHA256与TD00锁一致，旧1.0-SNAPSHOT未覆盖。A根POM已切新版本，B仍待TD02锁同字节。第14节“未安装／发布”和旧锁installed=false是TD00时点；当前状态见 [A候选](../../zj-market/docs/team-discovery-a-release.json)。无远程包、Git或镜像发布。
+
+最终`td01_20261014_04`：13查询／游标＋44旧V2＋12真实TLS，共69项JUnit通过，原生14项检查为重叠子集不相加。真实测试使用生产Provider／引擎、MyBatis仓储、折扣规则、MySQL及独立Redis；remote TCP调用验证签名、错误签名、接口方法绑定、重放、越渠道、标签、分页、非法游标／商品版本、明文／不可信证书拒绝及旧占位／支付事实／查单／关闭／完整核对。20次签名查询前后该隔离库业务行快照相同，未产生查询交易副作用；nonce记录允许。
+
+1000合成候选＋2000他商品干扰，20个SQL EXPLAIN ANALYZE根迭代器样本p95=0.171ms，20次串行TLS RPC p95=15ms；不是HTTP／生产QPS承诺。另用真实reserve及支付事件引擎事务验证未付不展示、A接受后可展示；直接事件处理不等于MQ传输验收。隔离运行账号SSL且仅业务表DML，无DDL／原A／系统库权限；原A/B核心财务与库存团队哈希一致，原七服务健康、镜像不变，本批临时容器／网络已清理。
+
+过程、失败01～03及边界见 [功能文档第14节](../../zj-market/docs/team-discovery-development.md#14-td-01-实施与验收2026-10-14已完成)，[公开验收摘要](../../zj-market/docs/tests/td01-acceptance.json)绑定测试日志／候选／执行计划指纹。普通Boot整栈／正式容器、B HTTP／前端和新交易联合场景仍归TD02～05。新增游标编码也受768字节／1024字符约束，组合UTF8身份太长返回0002，不输出不可继续翻页的超长位置。

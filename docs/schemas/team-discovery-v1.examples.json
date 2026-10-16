@@ -1,0 +1,80 @@
+{
+  "request": {
+    "source": "td00",
+    "channel": "web",
+    "userId": "TD00-viewer",
+    "goodsId": "TD00-goods",
+    "activityId": "714001",
+    "productVersion": "1",
+    "limit": 1,
+    "cursor": null
+  },
+  "page": {
+    "source": "td00",
+    "channel": "web",
+    "userId": "TD00-viewer",
+    "goodsId": "TD00-goods",
+    "activityId": "714001",
+    "productVersion": "1",
+    "serverTime": "2026-10-14T00:30:00.000Z",
+    "items": [
+      {
+        "teamId": "TD00-team-01",
+        "activityId": "714001",
+        "goodsId": "TD00-goods",
+        "teamVersion": "2",
+        "teamStatus": "FORMING",
+        "targetCount": 3,
+        "reservedCount": 2,
+        "paidCount": 1,
+        "validStartTime": "2026-10-14T00:00:00.000Z",
+        "validEndTime": "2026-10-14T01:00:00.000Z"
+      }
+    ],
+    "nextCursor": "eyJhY3Rpdml0eUlkIjoiNzE0MDAxIiwiY2hhbm5lbCI6IndlYiIsImN1cnNvclZlcnNpb24iOjEsImdvb2RzSWQiOiJURDAwLWdvb2RzIiwibGFzdEVuZFRpbWUiOiIyMDI2LTEwLTE0VDAxOjAwOjAwLjAwMFoiLCJsYXN0VGVhbUlkIjoiVEQwMC10ZWFtLTAxIiwicHJvZHVjdFZlcnNpb24iOiIxIiwic29ydFZlcnNpb24iOiJFTkRfVEVBTV9BU0NfVjEiLCJzb3VyY2UiOiJ0ZDAwIiwidXNlcklkIjoiVEQwMC12aWV3ZXIifQ",
+    "hasMore": true
+  },
+  "cursorPayload": {
+    "cursorVersion": 1,
+    "sortVersion": "END_TEAM_ASC_V1",
+    "source": "td00",
+    "channel": "web",
+    "userId": "TD00-viewer",
+    "goodsId": "TD00-goods",
+    "activityId": "714001",
+    "productVersion": "1",
+    "lastEndTime": "2026-10-14T01:00:00.000Z",
+    "lastTeamId": "TD00-team-01"
+  },
+  "cursorCanonicalJson": "{\"activityId\":\"714001\",\"channel\":\"web\",\"cursorVersion\":1,\"goodsId\":\"TD00-goods\",\"lastEndTime\":\"2026-10-14T01:00:00.000Z\",\"lastTeamId\":\"TD00-team-01\",\"productVersion\":\"1\",\"sortVersion\":\"END_TEAM_ASC_V1\",\"source\":\"td00\",\"userId\":\"TD00-viewer\"}",
+  "cursorEncoded": "eyJhY3Rpdml0eUlkIjoiNzE0MDAxIiwiY2hhbm5lbCI6IndlYiIsImN1cnNvclZlcnNpb24iOjEsImdvb2RzSWQiOiJURDAwLWdvb2RzIiwibGFzdEVuZFRpbWUiOiIyMDI2LTEwLTE0VDAxOjAwOjAwLjAwMFoiLCJsYXN0VGVhbUlkIjoiVEQwMC10ZWFtLTAxIiwicHJvZHVjdFZlcnNpb24iOiIxIiwic29ydFZlcnNpb24iOiJFTkRfVEVBTV9BU0NfVjEiLCJzb3VyY2UiOiJ0ZDAwIiwidXNlcklkIjoiVEQwMC12aWV3ZXIifQ",
+  "canonicalRequestJson": "{\"activityId\":\"714001\",\"channel\":\"web\",\"cursor\":null,\"goodsId\":\"TD00-goods\",\"limit\":1,\"productVersion\":\"1\",\"source\":\"td00\",\"userId\":\"TD00-viewer\"}",
+  "httpSuccess": {
+    "code": "0000",
+    "message": "成功",
+    "data": {
+      "state": "AVAILABLE",
+      "reason": null,
+      "goodsId": "TD00-goods",
+      "productVersion": "1",
+      "activityId": "714001",
+      "serverTime": "2026-10-14T00:30:00.000Z",
+      "items": [
+        {
+          "teamId": "TD00-team-01",
+          "targetCount": 3,
+          "reservedCount": 2,
+          "paidCount": 1,
+          "validEndTime": "2026-10-14T01:00:00.000Z",
+          "availableSlots": 1,
+          "remainingPaidCount": 2
+        }
+      ],
+      "activeOrderId": null,
+      "nextCursor": "eyJhY3Rpdml0eUlkIjoiNzE0MDAxIiwiY2hhbm5lbCI6IndlYiIsImN1cnNvclZlcnNpb24iOjEsImdvb2RzSWQiOiJURDAwLWdvb2RzIiwibGFzdEVuZFRpbWUiOiIyMDI2LTEwLTE0VDAxOjAwOjAwLjAwMFoiLCJsYXN0VGVhbUlkIjoiVEQwMC10ZWFtLTAxIiwicHJvZHVjdFZlcnNpb24iOiIxIiwic29ydFZlcnNpb24iOiJFTkRfVEVBTV9BU0NfVjEiLCJzb3VyY2UiOiJ0ZDAwIiwidXNlcklkIjoiVEQwMC12aWV3ZXIifQ",
+      "hasMore": true
+    },
+    "requestId": "td00-vector-request"
+  },
+  "canonicalRequestSha256": "5ee2097553ed31c647c337cdbc00c844a3888e365bffb514dfb96d1cceccd5f0"
+}

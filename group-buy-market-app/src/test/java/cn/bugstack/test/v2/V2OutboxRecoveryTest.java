@@ -25,7 +25,7 @@ public class V2OutboxRecoveryTest {
     @Resource private DataSource dataSource;
 
     @Before public void seed() {
-        assertEquals("group_buy_market_phase1_test",jdbc.queryForObject("select database()",String.class));
+        V2TestDatabase.assertIsolated(jdbc);
         jdbc.update("delete from ab_outbox");
         jdbc.update("insert into ab_outbox(event_id,topic,event_type,source,channel,body,body_hash) " +
                 "values('recover-event','A_TEAM_EVENTS-test','TEAM_COMPLETED','s01','c01','{\"fact\":1}',?)",V2Format.sha256("{\"fact\":1}"));

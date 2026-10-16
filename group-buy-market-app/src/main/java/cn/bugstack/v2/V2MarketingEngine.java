@@ -27,6 +27,11 @@ public class V2MarketingEngine {
     }
 
     public Quote quote(TrialRequest request, boolean lockProduct) {
+        return quote(request, lockProduct, null);
+    }
+
+    /** Discovery supplies its transaction's single database timestamp; old callers retain their clock boundary. */
+    public Quote quote(TrialRequest request, boolean lockProduct, java.sql.Timestamp snapshotTime) {
         if (request==null) throw new V2Failure(V2Codes.INVALID_PARAMETER);
         V2Format.id(request.getSource(), 8); V2Format.id(request.getChannel(), 8);
         V2Format.id(request.getUserId(), 64); V2Format.id(request.getGoodsId(), 64);
@@ -62,7 +67,7 @@ public class V2MarketingEngine {
             if (request.getActivityId() != null) throw new V2Failure("E0101");
             return null;
         }
-        java.sql.Timestamp now=jdbc.queryForObject("select now(3)",java.sql.Timestamp.class);
+        java.sql.Timestamp now=snapshotTime == null ? jdbc.queryForObject("select now(3)",java.sql.Timestamp.class) : snapshotTime;
         if (!Integer.valueOf(1).equals(activity.getStatus())) {
             if (request.getActivityId()!=null) throw new V2Failure("E0101");
             return null;

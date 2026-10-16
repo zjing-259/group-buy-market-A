@@ -51,11 +51,7 @@ public class V2PaymentFlowTest {
     @Import({V2EventEngine.class,V2PaymentEngine.class,V2TeamEngine.class,V2TradeEngine.class,V2OutboxService.class,V2PaymentIdentity.class})
     public static class Config {
         @Bean(destroyMethod="close") public HikariDataSource dataSource() {
-            String password=System.getenv("PHASE1_DB_PASSWORD");
-            if (password==null) throw new IllegalStateException("Set PHASE1_DB_PASSWORD");
-            HikariDataSource ds=new HikariDataSource();
-            ds.setJdbcUrl("jdbc:mysql://127.0.0.1:13306/group_buy_market_phase1_test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai");
-            ds.setUsername("root"); ds.setPassword(password); return ds;
+            return V2TestDatabase.dataSource();
         }
         @Bean public JdbcTemplate jdbcTemplate(DataSource ds) { return new JdbcTemplate(ds); }
         @Bean public PlatformTransactionManager transactionManager(DataSource ds) { return new DataSourceTransactionManager(ds); }
@@ -83,7 +79,7 @@ public class V2PaymentFlowTest {
 
     @Before public void seed() {
         org.mockito.Mockito.reset(marketing);
-        assertEquals("group_buy_market_phase1_test",jdbc.queryForObject("select database()",String.class));
+        V2TestDatabase.assertIsolated(jdbc);
         for (String table:Arrays.asList("ab_outbox","ab_waiting_dependency","ab_inbox","ab_exception_payment",
                 "ab_payment_guard","ab_trade_guard","ab_trade_order","ab_team")) jdbc.update("delete from "+table);
         jdbc.update("insert into ab_team(team_id,source,channel,activity_id,goods_id,target_count,reserved_count,paid_count,"+

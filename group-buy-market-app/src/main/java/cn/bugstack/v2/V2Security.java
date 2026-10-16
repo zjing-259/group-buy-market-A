@@ -43,7 +43,7 @@ public class V2Security {
     private static final Set<String> METHODS=new HashSet<>(Arrays.asList(
             "MarketingService.trial","TradeService.reserve","TradeService.query","TradeService.close",
             "TeamService.query","TeamService.queryReconciliation","TeamService.completeReconciliation",
-            "IntegrationService.queryEventResult"));
+            "IntegrationService.queryEventResult","TeamDiscoveryService.list"));
 
     public static String hmac(String key,String message) {
         try {

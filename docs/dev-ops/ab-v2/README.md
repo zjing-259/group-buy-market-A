@@ -1,5 +1,20 @@
 # A/B v2 本地联调
 
+## TD-01 新发现能力（2026-10-14）
+
+`TeamDiscoveryService.list`已实现并通过独立MySQL／Redis／真实TCP TLS验收。契约1.1.0-td.1已安装本机Maven，SHA见 [候选清单](../../../../zj-market/docs/team-discovery-a-release.json)；B依赖／HTTP／页面及原B06镜像未升级。目标A库需先使用维护权限一次性执行 `../mysql/sql/migrations/20261014-team-discovery.sql`，核对两个新增索引；新查询显式依赖这些索引，运行账号不授DDL。
+
+隔离复现先在A构建普通包及测试类：
+
+```powershell
+mvn -B -o -pl group-buy-market-app -am '-DskipTests=false' '-DfailIfNoTests=false' '-Dtest=V2TeamDiscoveryCursorTest,V2AuthorizationTest,V2TlsGateTest,V2SecurityVectorTest' package
+python -B docs/tests/run-team-discovery.py --run-name td01_20261014_05
+```
+
+必须从A仓库根目录执行，批次名称不可复用。需要已有Docker Desktop desktop-linux和自有zj-market-b06 MySQL、原工作树私有MySQL信任材料、已缓存Java8／Redis镜像及JDK21证书工具；只创建新TD01库、专用SSL运行账号和自有临时容器／网络，不停止／重建原容器或复制历史业务数据。密码／测试证书仅留忽略的 `.local/<批次>` 受限ACL，报告与失败批次留A的 `target/team-discovery/<批次>`；临时资源按td01.owner归属清理，隔离库保留。
+
+最终04批69项通过，执行计划使用新双索引；20个SQL样本p95=0.171ms、20次串行RPC p95=15ms。合成候选计数和直接事件引擎付款兼容测试不能代替B资金／MQ／前端验收。测试使用生产beans的显式装配，不启动调度器／MQ工作器；普通Boot整栈／正式容器发布留TD05。过程及失败记录见 [功能文档](../../../../zj-market/docs/team-discovery-development.md#14-td-01-实施与验收2026-10-14已完成)，旧联调脚本／以下记录保持原范围。
+
 当前脚本用于 **A、B Java 进程在 Windows 宿主机运行**、RocketMQ 在 Docker Desktop 运行的开发环境。Dubbo Triple Provider 随 A 进程启动，监听 50051；Dubbo 没有独立 Broker 容器。`broker.conf` 公布 `127.0.0.1`，MQ 端口只绑定宿主机回环。若改为容器化 A/B，需先调整 Broker 公布地址与端口可达性并重新做收发测试。
 
 1. 在项目根目录完成 Maven 打包。首次数据库迁移 `docs/dev-ops/mysql/sql/migrations/20261002-ab-v2.sql` **只能应用一次**；请先核对已有库结构，勿重复执行其 `ALTER`。
