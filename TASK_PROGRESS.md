@@ -1,3 +1,5 @@
+> 最新接续（2026-10-16，ST-01 已完成）：A 冻结源码已提交为 8040350b7e819fac813d343aab9e9ad220f4c06d，注解标签 stable-td06-20261016-01 指向该基线；286 个文件与 TD-06 锁一致。主站实际 A 镜像连同 MySQL、Redis、RocketMQ、B、web 共六个唯一镜像已在 B 仓忽略目录离线保存并验证 load 后 ID。原主站容器／五卷和 443 保持运行；公开证据见 B 仓 docs/stable-manifest.json、docs/tests/st01-acceptance.json。源码提交晚于构建，原构建证据仍是 TD-05/TD-06；未推送或切换部署，ST-02～05 待实施。
+
 > 最新接续（2026-10-16，ST-00 已完成）：A 仓库仍在 codex/team-discovery-td00，冻结的 286 个源码文件与 TD-06 源码锁一致；主站 A 镜像实际 ID 与 TD-06 发布清单一致，原五卷、七服务和 443 网关保持运行。此次仅对两仓及主站做只读盘点，A 未改业务源码或提交。ST-01 源码提交／镜像保存及后续隔离步骤尚未执行；脱敏证据见 B 仓库 docs/tests/st00-acceptance.json，隔离方案见 B 仓库 docs/stable-release-worktree-isolation-plan.md。
 
 # 项目 A 工作进度
