@@ -1,3 +1,5 @@
+> 最新接续（2026-10-16，ST-03 已验收）：旧版主站 A 服务已随七服务从 B 仓独立目录接管，原 A 镜像 ID、MySQL／MQ 卷及网络身份保持。最终一致性冷备、独立目录真实停启、模拟两账号成团和旧 A 核对义务保留均已验收；A 本轮未改业务源码。旧主站控制入口已交接，新日常入口为 `D:\Java\zj-market-stable\scripts\stable.ps1`。证据见 [B 仓 ST-03 摘要](../zj-market/docs/tests/st03-acceptance.json)；下一步 ST-04。以下为历史接续。
+
 > 最新接续（2026-10-16，ST-02 阶段验收通过）：B 仓已生成独立稳定版部署包，A 镜像 ID 固定在包内，A 本轮无业务源码或契约修改。原主站七容器身份未变且健康，新的生命周期入口尚未接管；真实停启、原卷交接和独立目录运行归 ST-03。验收见 [B 仓 ST-02 摘要](../zj-market/docs/tests/st02-acceptance.json)与[隔离方案](../zj-market/docs/stable-release-worktree-isolation-plan.md)。下列为历史接续。
 
 > 最新接续（2026-10-16，ST-01 已完成）：A 冻结源码已提交为 8040350b7e819fac813d343aab9e9ad220f4c06d，注解标签 stable-td06-20261016-01 指向该基线；286 个文件与 TD-06 锁一致。主站实际 A 镜像连同 MySQL、Redis、RocketMQ、B、web 共六个唯一镜像已在 B 仓忽略目录离线保存并验证 load 后 ID。原主站容器／五卷和 443 保持运行；公开证据见 B 仓 docs/stable-manifest.json、docs/tests/st01-acceptance.json。源码提交晚于构建，原构建证据仍是 TD-05/TD-06；未推送或切换部署，ST-02～05 待实施。
