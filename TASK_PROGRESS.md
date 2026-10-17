@@ -1,4 +1,6 @@
-> 最新接续（2026-10-16，ST-03 已验收）：旧版主站 A 服务已随七服务从 B 仓独立目录接管，原 A 镜像 ID、MySQL／MQ 卷及网络身份保持。最终一致性冷备、独立目录真实停启、模拟两账号成团和旧 A 核对义务保留均已验收；A 本轮未改业务源码。旧主站控制入口已交接，新日常入口为 `D:\Java\zj-market-stable\scripts\stable.ps1`。证据见 [B 仓 ST-03 摘要](../zj-market/docs/tests/st03-acceptance.json)；下一步 ST-04。以下为历史接续。
+> 最新接续（2026-10-17，ST-04 已验收）：A 源码、契约及原工作树未改，也未另建 A 工作树。`zj-market-ux` 从 ST-01 固定 A 镜像 ID `sha256:48c7af4b…` 启动独立 A 容器，使用 UX 空 MySQL、独立 MQ／Redis／RPC 凭据及两条 TD-01 发现索引；旧站 A 容器与原五卷不变。UX 实际签名试算、开团占位、取消关闭后 UX A 订单由 0 增至 1，旧站 A 订单仍为 60、Outbox 仍为 163，旧站 `READY`；独立 Edge 配置目录无界面打开 UX 页面且 Cookie 未跨旧站域名。见 [B 仓 ST-04 验收](../zj-market/docs/tests/st04-acceptance.json)及[隔离方案](../zj-market/docs/stable-release-worktree-isolation-plan.md)；下一步 ST-05。以下为历史接续。
+
+> 先前接续（2026-10-16，ST-03 已验收）：旧版主站 A 服务已随七服务从 B 仓独立目录接管，原 A 镜像 ID、MySQL／MQ 卷及网络身份保持。最终一致性冷备、独立目录真实停启、模拟两账号成团和旧 A 核对义务保留均已验收；A 本轮未改业务源码。旧主站控制入口已交接，新日常入口为 `D:\Java\zj-market-stable\scripts\stable.ps1`。证据见 [B 仓 ST-03 摘要](../zj-market/docs/tests/st03-acceptance.json)。以下为历史接续。
 
 > 最新接续（2026-10-16，ST-02 阶段验收通过）：B 仓已生成独立稳定版部署包，A 镜像 ID 固定在包内，A 本轮无业务源码或契约修改。原主站七容器身份未变且健康，新的生命周期入口尚未接管；真实停启、原卷交接和独立目录运行归 ST-03。验收见 [B 仓 ST-02 摘要](../zj-market/docs/tests/st02-acceptance.json)与[隔离方案](../zj-market/docs/stable-release-worktree-isolation-plan.md)。下列为历史接续。
 
